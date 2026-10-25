@@ -19,6 +19,49 @@ const publicMessages = document.querySelector("#guest-messages");
 
 let supabase;
 let activeCode = "";
+let wishesLayoutFrame = 0;
+
+const syncPublicMessagesLayout = () => {
+  if (!publicMessages) return;
+  const track = publicMessages.querySelector(".wishes-track");
+  const group = track?.querySelector(".wishes-group");
+  if (!track || !group) return;
+
+  track.querySelector(".wishes-group--duplicate")?.remove();
+  publicMessages.classList.remove("is-ticker", "is-static-overflow");
+  publicMessages.removeAttribute("tabindex");
+  publicMessages.removeAttribute("aria-label");
+  track.style.removeProperty("--wishes-duration");
+
+  const overflows = group.getBoundingClientRect().width > publicMessages.clientWidth + 1;
+  if (!overflows) return;
+
+  publicMessages.tabIndex = 0;
+  publicMessages.setAttribute("aria-label", "Faire défiler les petits mots");
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    publicMessages.classList.add("is-static-overflow");
+    return;
+  }
+
+  const duplicate = group.cloneNode(true);
+  duplicate.classList.add("wishes-group--duplicate");
+  duplicate.setAttribute("aria-hidden", "true");
+  track.append(duplicate);
+  track.style.setProperty("--wishes-duration", `${Math.max(24, group.getBoundingClientRect().width / 34)}s`);
+  publicMessages.classList.add("is-ticker");
+};
+
+const schedulePublicMessagesLayout = () => {
+  if (wishesLayoutFrame) cancelAnimationFrame(wishesLayoutFrame);
+  wishesLayoutFrame = requestAnimationFrame(() => {
+    wishesLayoutFrame = 0;
+    syncPublicMessagesLayout();
+  });
+};
+
+window.addEventListener("resize", schedulePublicMessagesLayout, { passive: true });
+window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener?.("change", schedulePublicMessagesLayout);
 
 const setStatus = (element, message, isError = false) => {
   if (!element) return;
@@ -127,6 +170,7 @@ const callRsvp = async (body) => {
 const renderPublicMessages = (messages) => {
   if (!publicMessages) return;
   publicMessages.replaceChildren();
+  publicMessages.classList.remove("is-ticker", "is-static-overflow");
 
   if (!messages.length) {
     const empty = document.createElement("p");
@@ -135,6 +179,11 @@ const renderPublicMessages = (messages) => {
     publicMessages.append(empty);
     return;
   }
+
+  const track = document.createElement("div");
+  track.className = "wishes-track";
+  const group = document.createElement("div");
+  group.className = "wishes-group";
 
   messages.forEach((message) => {
     const article = document.createElement("article");
@@ -153,8 +202,12 @@ const renderPublicMessages = (messages) => {
         article.append(time);
       }
     }
-    publicMessages.append(article);
+    group.append(article);
   });
+
+  track.append(group);
+  publicMessages.append(track);
+  schedulePublicMessagesLayout();
 };
 
 const loadPublicMessages = async () => {
@@ -164,6 +217,7 @@ const loadPublicMessages = async () => {
     renderPublicMessages(Array.isArray(data.messages) ? data.messages : []);
   } catch {
     publicMessages.replaceChildren();
+    publicMessages.classList.remove("is-ticker", "is-static-overflow");
     const error = document.createElement("p");
     error.className = "wishes-empty";
     error.textContent = "Les petits mots ne sont pas disponibles pour le moment.";

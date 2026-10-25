@@ -358,13 +358,22 @@
 .wishes-section .section-heading { margin-bottom: 2rem; }
 .wishes-section .section-heading > p:last-child { margin: .75rem auto 0; color: var(--muted); font-size: .92rem; }
 .wishes-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
-  gap: 1rem;
+  width: 100%;
   max-width: 1080px;
   margin-inline: auto;
+  overflow: hidden;
+}
+.wishes-track { display: flex; width: 100%; }
+.wishes-group {
+  display: flex;
+  flex: 0 0 auto;
+  width: max-content;
+  gap: 1rem;
+  margin-inline: auto;
+  padding-inline: .25rem;
 }
 .wish-note {
+  flex: 0 0 min(340px, calc(100vw - 4.8rem));
   min-width: 0;
   padding: 1.35rem 1.45rem;
   border-top: 2px solid var(--wine);
@@ -373,7 +382,22 @@
 .wish-note h3 { margin: 0 0 .7rem; color: var(--green); font: 400 1.25rem var(--serif); }
 .wish-note p { margin: 0; color: var(--ink); font: 1rem/1.7 var(--serif); white-space: pre-wrap; overflow-wrap: anywhere; }
 .wish-note time { display: block; margin-top: .9rem; color: var(--muted); font-size: .72rem; }
-.wishes-empty { grid-column: 1 / -1; margin: 0; color: var(--muted); font: italic 1.05rem/1.6 var(--serif); text-align: center; }
+.wishes-empty { margin: 0; color: var(--muted); font: italic 1.05rem/1.6 var(--serif); text-align: center; }
+.wishes-list.is-ticker .wishes-track {
+  width: max-content;
+  animation: wishes-ticker var(--wishes-duration) linear infinite;
+}
+.wishes-list.is-ticker .wishes-group { margin: 0; }
+.wishes-list.is-ticker:hover .wishes-track,
+.wishes-list.is-ticker:focus-within .wishes-track { animation-play-state: paused; }
+.wishes-list.is-static-overflow { overflow-x: auto; scroll-snap-type: x mandatory; }
+.wishes-list.is-static-overflow .wishes-group { margin-inline: 0; }
+.wishes-list.is-static-overflow .wish-note { scroll-snap-align: start; }
+.wishes-list:focus-visible { outline: 2px solid var(--wine); outline-offset: 5px; }
+@keyframes wishes-ticker {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
 .button--light {
   justify-self: start;
   margin-top: 1.25rem;
