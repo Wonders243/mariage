@@ -57,8 +57,22 @@
           <button class="admin-quiet-button" id="sign-out" type="button">Se déconnecter</button>
         </div>
 
+        <nav class="admin-tabs" role="tablist" aria-label="Navigation de l’espace d’administration">
+          <button class="admin-tab" id="admin-tab-content" type="button" role="tab" aria-selected="true" aria-controls="admin-panel-content" tabindex="0">Le site</button>
+          <button class="admin-tab" id="admin-tab-invitations" type="button" role="tab" aria-selected="false" aria-controls="admin-panel-invitations" tabindex="-1">Invitations <span class="admin-tab__count" id="invitation-count">0</span></button>
+          <button class="admin-tab" id="admin-tab-messages" type="button" role="tab" aria-selected="false" aria-controls="admin-panel-messages" tabindex="-1">Petits mots <span class="admin-tab__count" id="pending-message-count">0</span></button>
+        </nav>
+
+        <section class="admin-panel" id="admin-panel-content" role="tabpanel" aria-labelledby="admin-tab-content">
         <form class="admin-form" id="content-form">
-          <fieldset class="admin-card">
+          <nav class="admin-section-nav" aria-label="Accès rapide aux sections du site">
+            <a href="#section-accueil">Accueil</a>
+            <a href="#section-programme">Programme</a>
+            <a href="#section-tenue">Tenue</a>
+            <a href="#section-rsvp">Réponses</a>
+            <a href="#section-galerie">Galerie</a>
+          </nav>
+          <fieldset class="admin-card" id="section-accueil">
             <legend>Accueil</legend>
             <div class="admin-fields admin-fields--two">
               <label class="admin-field"><span>Prénom 1</span><input name="nameOne" type="text" required></label>
@@ -80,14 +94,14 @@
             </div>
           </fieldset>
 
-          <fieldset class="admin-card">
+          <fieldset class="admin-card" id="section-programme">
             <legend>Programme</legend>
             <label class="admin-field"><span>Titre de la section</span><input name="programmeTitle" type="text"></label>
             <div class="admin-repeat-list" id="events-editor"></div>
             <button class="admin-secondary-button" id="add-event" type="button">Ajouter un rendez-vous</button>
           </fieldset>
 
-          <fieldset class="admin-card">
+          <fieldset class="admin-card" id="section-tenue">
             <legend>Tenue</legend>
             <div class="admin-fields admin-fields--two">
               <label class="admin-field"><span>Petit titre</span><input name="dressLabel" type="text"></label>
@@ -95,7 +109,7 @@
             </div>
           </fieldset>
 
-          <fieldset class="admin-card">
+          <fieldset class="admin-card" id="section-rsvp">
             <legend>Confirmation de présence</legend>
             <div class="admin-fields admin-fields--two">
               <label class="admin-field"><span>Titre</span><input name="rsvpTitle" type="text"></label>
@@ -105,43 +119,7 @@
             <p class="admin-help">Les invités saisiront le code de leur faire-part. La liste des personnes et leurs réponses se gèrent ci-dessous.</p>
           </fieldset>
 
-          <fieldset class="admin-card admin-invitation-manager">
-            <legend>Invitations et réponses</legend>
-            <p>Crée un code par faire-part. Chaque personne inscrite ici pourra répondre séparément.</p>
-            <div class="admin-fields admin-fields--two">
-              <label class="admin-field"><span>Nom interne du faire-part</span><input id="invitation-label" type="text" maxlength="100" placeholder="Ex. Famille Martin"></label>
-              <label class="admin-field admin-field--full"><span>Personnes invitées — une par ligne</span><textarea id="invitation-guests" rows="4" maxlength="2000" placeholder="Prénom Nom&#10;Prénom Nom" required></textarea></label>
-            </div>
-            <button class="admin-secondary-button" id="create-invitation" type="button">Créer le code d’invitation</button>
-            <p class="admin-status" id="invitation-create-status" role="status" aria-live="polite"></p>
-            <div class="admin-invitation-code" id="invitation-code-result" hidden>
-              <div><strong>Code à inscrire sur le faire-part</strong><p>Copie-le maintenant : il ne sera pas conservé en clair.</p></div>
-              <output id="invitation-code-value"></output>
-              <button class="admin-quiet-button" id="copy-invitation-code" type="button">Copier le code</button>
-            </div>
-            <div class="admin-invitation-list-heading">
-              <h2>Suivi des réponses</h2>
-              <div>
-                <button class="admin-quiet-button" id="refresh-invitations" type="button">Actualiser</button>
-                <button class="admin-quiet-button" id="export-invitations" type="button">Exporter en CSV</button>
-              </div>
-            </div>
-            <p class="admin-status" id="invitation-list-status" role="status" aria-live="polite"></p>
-            <div class="admin-invitation-list" id="invitation-list"></div>
-          </fieldset>
-
-          <fieldset class="admin-card admin-message-manager">
-            <legend>Petits mots des invités</legend>
-            <p>Les messages envoyés avec un code d’invitation restent privés jusqu’à ce que tu les publies ici.</p>
-            <div class="admin-invitation-list-heading">
-              <h2>Modération des messages</h2>
-              <div><button class="admin-quiet-button" id="refresh-guest-messages" type="button">Actualiser</button></div>
-            </div>
-            <p class="admin-status" id="guest-messages-admin-status" role="status" aria-live="polite"></p>
-            <div class="admin-guest-message-list" id="guest-messages-admin-list"></div>
-          </fieldset>
-
-          <fieldset class="admin-card">
+          <fieldset class="admin-card" id="section-galerie">
             <legend>Galerie</legend>
             <div class="admin-fields admin-fields--two">
               <label class="admin-field"><span>Petit titre</span><input name="galleryEyebrow" type="text"></label>
@@ -157,6 +135,69 @@
             <button class="button" id="save-content" type="submit">Enregistrer les changements</button>
           </div>
         </form>
+        </section>
+
+        <section class="admin-panel" id="admin-panel-invitations" role="tabpanel" aria-labelledby="admin-tab-invitations" hidden>
+          <fieldset class="admin-card admin-invitation-manager">
+            <legend>Invitations et réponses</legend>
+            <p>Un code par faire-part. Vérifie la liste avant d’en créer un : les invitations déjà enregistrées seront signalées.</p>
+            <form class="admin-invitation-create" id="invitation-create-form">
+              <label class="admin-field"><span>Nom interne du faire-part</span><input id="invitation-label" type="text" maxlength="100" placeholder="Ex. Famille Martin"></label>
+              <label class="admin-field"><span>Personnes invitées — une par ligne</span><textarea id="invitation-guests" rows="4" maxlength="2000" placeholder="Prénom Nom&#10;Prénom Nom" required></textarea></label>
+              <button class="admin-secondary-button" id="create-invitation" type="submit">Créer le code d’invitation</button>
+            </form>
+            <p class="admin-status" id="invitation-create-status" role="status" aria-live="polite"></p>
+            <div class="admin-invitation-code" id="invitation-code-result" hidden>
+              <div><strong>Code à inscrire sur le faire-part</strong><p>Copie-le maintenant : il ne sera pas conservé en clair.</p></div>
+              <output id="invitation-code-value"></output>
+              <button class="admin-quiet-button" id="copy-invitation-code" type="button">Copier le code</button>
+            </div>
+            <div class="admin-invitation-list-heading">
+              <h2>Suivi des réponses</h2>
+              <div>
+                <label class="admin-field admin-invitation-search"><span>Rechercher</span><input id="invitation-search" type="search" placeholder="Nom du faire-part ou d’un invité"></label>
+                <button class="admin-quiet-button" id="refresh-invitations" type="button">Actualiser</button>
+                <button class="admin-quiet-button" id="export-invitations" type="button">Exporter en CSV</button>
+              </div>
+            </div>
+            <p class="admin-status" id="invitation-list-status" role="status" aria-live="polite"></p>
+            <div class="admin-invitation-list" id="invitation-list"></div>
+          </fieldset>
+        </section>
+
+        <section class="admin-panel" id="admin-panel-messages" role="tabpanel" aria-labelledby="admin-tab-messages" hidden>
+          <fieldset class="admin-card admin-message-manager">
+            <legend>Petits mots des invités</legend>
+            <p>Les messages envoyés avec un code d’invitation restent privés jusqu’à ce que tu les publies ici.</p>
+            <div class="admin-invitation-list-heading">
+              <h2>Modération des messages</h2>
+              <div><button class="admin-quiet-button" id="refresh-guest-messages" type="button">Actualiser</button></div>
+            </div>
+            <p class="admin-status" id="guest-messages-admin-status" role="status" aria-live="polite"></p>
+            <div class="admin-guest-message-list" id="guest-messages-admin-list"></div>
+          </fieldset>
+        </section>
+
+        <dialog class="admin-dialog" id="invitation-edit-dialog" aria-labelledby="invitation-edit-title">
+          <form id="invitation-edit-form">
+            <div class="admin-dialog__heading">
+              <div><p class="eyebrow">Gestion des invités</p><h2 id="invitation-edit-title">Modifier le faire-part</h2></div>
+              <button class="admin-quiet-button" id="close-invitation-editor" type="button">Fermer</button>
+            </div>
+            <p class="admin-help">Le code du faire-part et les réponses des personnes conservées resteront inchangés.</p>
+            <label class="admin-field"><span>Nom interne du faire-part</span><input id="edit-invitation-label" type="text" maxlength="100" required></label>
+            <div class="admin-invitation-list-heading admin-edit-guests-heading">
+              <h3>Personnes invitées</h3>
+              <button class="admin-quiet-button" id="add-edit-invitation-guest" type="button">Ajouter une personne</button>
+            </div>
+            <div class="admin-edit-guests" id="edit-invitation-guests"></div>
+            <p class="admin-status" id="edit-invitation-status" role="status" aria-live="polite"></p>
+            <div class="admin-dialog__actions">
+              <button class="admin-quiet-button" id="cancel-invitation-editor" type="button">Annuler</button>
+              <button class="button" id="save-invitation-edit" type="submit">Enregistrer</button>
+            </div>
+          </form>
+        </dialog>
       </section>
     </main>
   </body>

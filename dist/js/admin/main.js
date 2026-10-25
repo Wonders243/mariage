@@ -20,10 +20,16 @@ const saveButton = document.querySelector('#save-content');
 const invitationList = document.querySelector('#invitation-list');
 const invitationListStatus = document.querySelector('#invitation-list-status');
 const invitationCreateStatus = document.querySelector('#invitation-create-status');
+const invitationCreateForm = document.querySelector('#invitation-create-form');
 const invitationCodeResult = document.querySelector('#invitation-code-result');
 const invitationCodeValue = document.querySelector('#invitation-code-value');
+const invitationSearch = document.querySelector('#invitation-search');
 const guestMessagesList = document.querySelector('#guest-messages-admin-list');
 const guestMessagesStatus = document.querySelector('#guest-messages-admin-status');
+const invitationEditDialog = document.querySelector('#invitation-edit-dialog');
+const invitationEditForm = document.querySelector('#invitation-edit-form');
+const invitationEditLabel = document.querySelector('#edit-invitation-label');
+const invitationEditGuests = document.querySelector('#edit-invitation-guests');
 
 initContentEditor({
   form: contentForm,
@@ -39,6 +45,33 @@ let currentContent;
 let activeUserId = '';
 let currentInvitations = [];
 let currentGuestMessages = [];
+let editingInvitation = null;
+
+const adminTabs = Array.from(document.querySelectorAll('.admin-tab[role="tab"]'));
+const activateAdminTab = (tab, { focus = false } = {}) => {
+  adminTabs.forEach((candidate) => {
+    const selected = candidate === tab;
+    candidate.setAttribute('aria-selected', String(selected));
+    candidate.tabIndex = selected ? 0 : -1;
+    document.getElementById(candidate.getAttribute('aria-controls')).hidden = !selected;
+  });
+  if (focus) tab.focus();
+  document.getElementById(tab.getAttribute('aria-controls')).scrollIntoView({ block: 'start', behavior: 'smooth' });
+};
+
+adminTabs.forEach((tab) => tab.addEventListener('click', () => activateAdminTab(tab)));
+document.querySelector('.admin-tabs')?.addEventListener('keydown', (event) => {
+  const currentIndex = adminTabs.indexOf(document.activeElement);
+  if (currentIndex < 0) return;
+  let nextIndex = currentIndex;
+  if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % adminTabs.length;
+  else if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + adminTabs.length) % adminTabs.length;
+  else if (event.key === 'Home') nextIndex = 0;
+  else if (event.key === 'End') nextIndex = adminTabs.length - 1;
+  else return;
+  event.preventDefault();
+  activateAdminTab(adminTabs[nextIndex], { focus: true });
+});
 
 const setStatus = (element, message, isError = false) => {
   if (!element) return;
@@ -103,19 +136,100 @@ const responseLabel = (attending) => attending === true
   ? 'Présent(e)'
   : attending === false ? 'Absent(e)' : 'En attente';
 
+const comparableText = (value) => String(value || '')
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toLocaleLowerCase('fr-FR')
+  .replace(/[^a-z0-9]+/g, ' ')
+  .trim();
+
+const guestSignature = (guests) => (Array.isArray(guests) ? guests : [])
+  .map((guest) => comparableText(guest.name))
+  .filter(Boolean)
+  .sort()
+  .join('|');
+
+const findInvitationConflict = ({ label, guests, excludeId = '', originalLabel = '', originalSignature = '' }) => {
+  const labelKey = comparableText(label);
+  const signature = guestSignature(guests);
+  return currentInvitations.find((invitation) => {
+    if (invitation.id === excludeId) return false;
+    const otherLabel = comparableText(invitation.invitation_label);
+    const otherSignature = guestSignature(invitation.guests);
+    const sameUnchangedRecord = labelKey === originalLabel && signature === originalSignature;
+    const labelConflict = labelKey && labelKey === otherLabel && !sameUnchangedRecord;
+    const guestsConflict = signature && signature === otherSignature && signature !== originalSignature;
+    return labelConflict || guestsConflict;
+  }) || null;
+};
+
+const invitationGuestRow = (guest = {}) => {
+  const row = document.createElement('div');
+  row.className = 'admin-edit-guest';
+  row.dataset.guestId = guest.id || '';
+
+  const label = document.createElement('label');
+  label.className = 'admin-field';
+  const caption = document.createElement('span');
+  caption.textContent = 'Prénom et nom';
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.maxLength = 80;
+  input.required = true;
+  input.value = guest.name || '';
+  input.autocomplete = 'off';
+  label.append(caption, input);
+
+  const remove = document.createElement('button');
+  remove.className = 'admin-repeat-item__remove';
+  remove.type = 'button';
+  remove.textContent = 'Retirer';
+  remove.addEventListener('click', () => row.remove());
+  row.append(label, remove);
+  return row;
+};
+
+const openInvitationEditor = (invitation) => {
+  editingInvitation = invitation;
+  invitationEditLabel.value = invitation.invitation_label || '';
+  invitationEditGuests.replaceChildren();
+  (Array.isArray(invitation.guests) ? invitation.guests : []).forEach((guest) => {
+    invitationEditGuests.append(invitationGuestRow(guest));
+  });
+  setStatus(document.querySelector('#edit-invitation-status'), '');
+  invitationEditDialog.showModal();
+  invitationEditLabel.focus();
+};
+
 const renderInvitations = () => {
   if (!invitationList) return;
   const fragment = document.createDocumentFragment();
+  const signatureCounts = new Map();
+  const labelCounts = new Map();
+  currentInvitations.forEach((invitation) => {
+    const signature = guestSignature(invitation.guests);
+    if (signature) signatureCounts.set(signature, (signatureCounts.get(signature) || 0) + 1);
+    const label = comparableText(invitation.invitation_label);
+    if (label) labelCounts.set(label, (labelCounts.get(label) || 0) + 1);
+  });
+  const query = comparableText(invitationSearch?.value);
+  const visibleInvitations = currentInvitations.filter((invitation) => {
+    if (!query) return true;
+    const terms = [invitation.invitation_label, ...(invitation.guests || []).map((guest) => guest.name)];
+    return terms.some((term) => comparableText(term).includes(query));
+  });
 
-  if (!currentInvitations.length) {
+  if (!currentInvitations.length || !visibleInvitations.length) {
     const empty = document.createElement('p');
     empty.className = 'admin-invitation-empty';
-    empty.textContent = 'Aucun faire-part pour le moment. Les réponses apparaîtront ici.';
+    empty.textContent = currentInvitations.length
+      ? 'Aucun faire-part ne correspond à cette recherche.'
+      : 'Aucun faire-part pour le moment. Les réponses apparaîtront ici.';
     invitationList.replaceChildren(empty);
     return;
   }
 
-  currentInvitations.forEach((invitation) => {
+  visibleInvitations.forEach((invitation) => {
     const card = document.createElement('article');
     card.className = 'admin-invitation';
     const guests = Array.isArray(invitation.guests) ? invitation.guests : [];
@@ -125,10 +239,28 @@ const renderInvitations = () => {
 
     const heading = document.createElement('div');
     heading.className = 'admin-invitation__heading';
+    const titleGroup = document.createElement('div');
+    titleGroup.className = 'admin-invitation__title';
     const title = document.createElement('h3');
     title.textContent = invitation.invitation_label || 'Faire-part';
+    titleGroup.append(title);
+    const signature = guestSignature(guests);
+    const label = comparableText(invitation.invitation_label);
+    if ((signature && signatureCounts.get(signature) > 1) || (label && labelCounts.get(label) > 1)) {
+      const duplicate = document.createElement('span');
+      duplicate.className = 'admin-invitation__duplicate';
+      duplicate.textContent = 'Doublon possible';
+      titleGroup.append(duplicate);
+    }
     const summary = document.createElement('p');
     summary.textContent = `${present} présent(s) · ${absent} absent(s) · ${waiting} réponse(s) attendue(s)`;
+    const actions = document.createElement('div');
+    actions.className = 'admin-invitation__actions';
+    const edit = document.createElement('button');
+    edit.className = 'admin-quiet-button';
+    edit.type = 'button';
+    edit.textContent = 'Modifier';
+    edit.addEventListener('click', () => openInvitationEditor(invitation));
     const renewCode = document.createElement('button');
     renewCode.className = 'admin-invitation__renew';
     renewCode.type = 'button';
@@ -155,7 +287,8 @@ const renderInvitations = () => {
         renewCode.disabled = false;
       }
     });
-    heading.append(title, summary, renewCode);
+    actions.append(edit, renewCode);
+    heading.append(titleGroup, summary, actions);
 
     const list = document.createElement('ul');
     list.className = 'admin-invitation__guests';
@@ -187,6 +320,7 @@ async function loadInvitations() {
 
   if (error) throw error;
   currentInvitations = Array.isArray(data) ? data : [];
+  document.querySelector('#invitation-count').textContent = String(currentInvitations.length);
   renderInvitations();
   setStatus(invitationListStatus, '');
 }
@@ -267,11 +401,12 @@ async function loadGuestMessages() {
   setStatus(guestMessagesStatus, 'Chargement des petits mots…');
   const { data, error } = await supabase
     .from('wedding_rsvp_messages')
-    .select('id, guest_name, is_anonymous, message, status, created_at')
+    .select('id, invitation_id, guest_id, guest_name, is_anonymous, message, status, created_at')
     .order('created_at', { ascending: false });
 
   if (error) throw error;
   currentGuestMessages = Array.isArray(data) ? data : [];
+  document.querySelector('#pending-message-count').textContent = String(currentGuestMessages.filter((message) => message.status === 'pending').length);
   renderGuestMessages();
   setStatus(guestMessagesStatus, '');
 }
@@ -350,13 +485,123 @@ document.querySelector('#sign-out').addEventListener('click', async () => {
   if (supabase) await supabase.auth.signOut();
 });
 
-document.querySelector('#create-invitation').addEventListener('click', async () => {
+document.querySelector('#add-edit-invitation-guest').addEventListener('click', () => {
+  const row = invitationGuestRow();
+  invitationEditGuests.append(row);
+  row.querySelector('input').focus();
+});
+
+const closeInvitationEditor = () => {
+  if (invitationEditDialog.open) invitationEditDialog.close();
+  editingInvitation = null;
+  invitationEditForm.reset();
+  invitationEditGuests.replaceChildren();
+  setStatus(document.querySelector('#edit-invitation-status'), '');
+};
+
+document.querySelector('#close-invitation-editor').addEventListener('click', closeInvitationEditor);
+document.querySelector('#cancel-invitation-editor').addEventListener('click', closeInvitationEditor);
+invitationEditDialog.addEventListener('close', () => { editingInvitation = null; });
+
+invitationEditForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  if (!supabase || !editingInvitation) return;
+
+  const status = document.querySelector('#edit-invitation-status');
+  const saveButton = document.querySelector('#save-invitation-edit');
+  const label = invitationEditLabel.value.trim();
+  const rows = Array.from(invitationEditGuests.querySelectorAll('.admin-edit-guest'));
+  const rowValues = rows.map((row) => ({
+    id: row.dataset.guestId,
+    name: row.querySelector('input').value.trim()
+  }));
+  const names = rowValues.map((guest) => guest.name);
+
+  if (!label) {
+    setStatus(status, 'Ajoute un nom interne pour ce faire-part.', true);
+    invitationEditLabel.focus();
+    return;
+  }
+  if (!names.length || names.some((name) => !name)) {
+    setStatus(status, 'Ajoute au moins une personne et complète chaque ligne.', true);
+    invitationEditGuests.querySelector('input')?.focus();
+    return;
+  }
+  if (names.some((name) => name.length > 80)) {
+    setStatus(status, 'Chaque nom doit faire moins de 80 caractères.', true);
+    return;
+  }
+  const normalizedNames = names.map(comparableText);
+  if (new Set(normalizedNames).size !== normalizedNames.length) {
+    setStatus(status, 'Une même personne apparaît plusieurs fois dans ce faire-part.', true);
+    return;
+  }
+
+  const previousGuests = Array.isArray(editingInvitation.guests) ? editingInvitation.guests : [];
+  const previousSignature = guestSignature(previousGuests);
+  const conflict = findInvitationConflict({
+    label,
+    guests: rowValues,
+    excludeId: editingInvitation.id,
+    originalLabel: comparableText(editingInvitation.invitation_label),
+    originalSignature: previousSignature
+  });
+  if (conflict) {
+    setStatus(status, `Une autre invitation existe déjà (« ${conflict.invitation_label || 'Faire-part'} »). Modifie cette fiche ou vérifie les personnes.`, true);
+    return;
+  }
+
+  const retainedIds = new Set(rowValues.map((guest) => guest.id).filter(Boolean));
+  const removedGuests = previousGuests.filter((guest) => !retainedIds.has(guest.id));
+  if (removedGuests.length) {
+    const removedIds = new Set(removedGuests.map((guest) => guest.id));
+    const answeredCount = removedGuests.filter((guest) => typeof guest.attending === 'boolean').length;
+    const hasMessages = currentGuestMessages.some((message) => message.invitation_id === editingInvitation.id && removedIds.has(message.guest_id));
+    const details = answeredCount ? ` ${answeredCount} réponse(s) de présence seront également retirées.` : '';
+    const messagesNote = hasMessages ? ' Les petits mots déjà envoyés resteront dans la modération.' : '';
+    if (!window.confirm(`Retirer ${removedGuests.length} personne(s) de cette invitation ?${details}${messagesNote}`)) return;
+  }
+
+  const previousById = new Map(previousGuests.map((guest) => [guest.id, guest]));
+  const guests = rowValues.map((guest) => {
+    const previous = previousById.get(guest.id);
+    return {
+      id: previous?.id || crypto.randomUUID(),
+      name: guest.name,
+      attending: typeof previous?.attending === 'boolean' ? previous.attending : null
+    };
+  });
+
+  saveButton.disabled = true;
+  setStatus(status, 'Enregistrement des modifications…');
+  try {
+    const { error } = await supabase
+      .from('wedding_rsvp_invitations')
+      .update({ invitation_label: label, guests, updated_at: new Date().toISOString() })
+      .eq('id', editingInvitation.id)
+      .select('id')
+      .single();
+    if (error) throw error;
+
+    closeInvitationEditor();
+    await loadInvitations();
+    setStatus(invitationListStatus, 'Faire-part modifié. Son code et les réponses conservées restent valides.');
+  } catch (error) {
+    const message = error.message || 'Le faire-part n’a pas pu être modifié.';
+    if (invitationEditDialog.open) setStatus(status, message, true);
+    else setStatus(invitationListStatus, `La modification est enregistrée, mais la liste n’a pas pu être actualisée : ${message}`, true);
+  } finally {
+    saveButton.disabled = false;
+  }
+});
+
+invitationCreateForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
   const button = document.querySelector('#create-invitation');
   const labelInput = document.querySelector('#invitation-label');
   const guestsInput = document.querySelector('#invitation-guests');
   const names = guestsInput.value.split(/\r?\n/).map((name) => name.trim()).filter(Boolean);
 
-  invitationCodeResult.hidden = true;
   if (!names.length) {
     setStatus(invitationCreateStatus, 'Ajoute au moins une personne, une par ligne.', true);
     guestsInput.focus();
@@ -366,18 +611,32 @@ document.querySelector('#create-invitation').addEventListener('click', async () 
     setStatus(invitationCreateStatus, 'Chaque nom doit faire moins de 80 caractères.', true);
     return;
   }
+  const normalizedNames = names.map(comparableText);
+  if (new Set(normalizedNames).size !== normalizedNames.length) {
+    setStatus(invitationCreateStatus, 'Une même personne apparaît plusieurs fois dans cette invitation.', true);
+    return;
+  }
   if (!supabase) {
     setStatus(invitationCreateStatus, 'Connecte-toi pour créer une invitation.', true);
     return;
   }
 
   button.disabled = true;
-  setStatus(invitationCreateStatus, 'Création du code…');
+  setStatus(invitationCreateStatus, 'Vérification des invitations existantes…');
   try {
+    await loadInvitations();
+    const invitationLabel = labelInput.value.trim() || names.join(', ');
+    const conflict = findInvitationConflict({ label: invitationLabel, guests: names.map((name) => ({ name })) });
+    if (conflict) {
+      setStatus(invitationCreateStatus, `Une invitation existe déjà (« ${conflict.invitation_label || 'Faire-part'} »). Utilise le bouton Modifier dans sa fiche.`, true);
+      return;
+    }
+
+    invitationCodeResult.hidden = true;
+    setStatus(invitationCreateStatus, 'Création du code…');
     const code = createInvitationCode();
     const codeHash = await hashInvitationCode(code);
     const guests = names.map((name) => ({ id: crypto.randomUUID(), name, attending: null }));
-    const invitationLabel = labelInput.value.trim() || names.join(', ');
     const { error } = await supabase.from('wedding_rsvp_invitations').insert({
       code_hash: codeHash,
       invitation_label: invitationLabel,
@@ -405,6 +664,8 @@ document.querySelector('#create-invitation').addEventListener('click', async () 
     button.disabled = false;
   }
 });
+
+invitationSearch.addEventListener('input', renderInvitations);
 
 document.querySelector('#copy-invitation-code').addEventListener('click', async () => {
   const code = invitationCodeValue.textContent.trim();
