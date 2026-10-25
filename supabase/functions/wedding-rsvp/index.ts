@@ -95,6 +95,54 @@ async function getDeadline(client: NonNullable<ReturnType<typeof getDatabaseClie
   return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : "2026-12-16";
 }
 
+async function getSiteContent(client: NonNullable<ReturnType<typeof getDatabaseClient>>) {
+  const { data, error } = await client
+    .from("wedding_site_content")
+    .select("content")
+    .eq("id", "main")
+    .maybeSingle();
+  if (error) throw error;
+
+  const content = (data?.content && typeof data.content === "object" ? { ...data.content } : {}) as Record<string, unknown>;
+  const bucket = client.storage.from("wedding-photos");
+  const createSignedPhotoUrl = async (path: unknown) => {
+    if (typeof path !== "string" || !path || path.startsWith("/") || path.includes("..")) return "";
+    const { data: signed, error: signedError } = await bucket.createSignedUrl(path, 60 * 60 * 12);
+    if (signedError) throw signedError;
+    return signed?.signedUrl || "";
+  };
+
+  if (content.heroStoragePath) {
+    const signedUrl = await createSignedPhotoUrl(content.heroStoragePath);
+    if (signedUrl) content.heroImageUrl = signedUrl;
+  }
+
+  if (Array.isArray(content.galleryImages)) {
+    content.galleryImages = await Promise.all((content.galleryImages as Array<Record<string, unknown>>).map(async (photo) => {
+      if (!photo || typeof photo !== "object" || !photo.storagePath) return photo;
+      const signedUrl = await createSignedPhotoUrl(photo.storagePath);
+      return signedUrl ? { ...photo, url: signedUrl } : photo;
+    }));
+  }
+
+  return content;
+}
+
+async function getApprovedMessages(client: NonNullable<ReturnType<typeof getDatabaseClient>>) {
+  const { data, error } = await client
+    .from("wedding_rsvp_messages")
+    .select("guest_name, is_anonymous, message, created_at")
+    .eq("status", "approved")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (error) throw error;
+  return (data || []).map((message) => ({
+    guest_name: message.is_anonymous ? "Anonyme" : message.guest_name,
+    message: message.message,
+    created_at: message.created_at,
+  }));
+}
+
 Deno.serve(async (request: Request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (request.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405);
@@ -103,32 +151,15 @@ Deno.serve(async (request: Request) => {
   if (!client) return json({ ok: false, error: "service_unavailable" }, 503);
 
   try {
-    if (!(await checkRateLimit(client, request))) {
-      return json({ ok: false, error: "rate_limited" }, 429);
-    }
-
     const body = await request.json().catch(() => null);
-    if (!body || !["lookup", "submit", "submit_message", "list_messages"].includes(body.action)) {
+    if (!body || !["lookup", "submit", "submit_message", "list_messages", "site_data"].includes(body.action)) {
       return json({ ok: false, error: "invalid_request" }, 400);
     }
 
-    if (body.action === "list_messages") {
-      const { data: messages, error: messagesError } = await client
-        .from("wedding_rsvp_messages")
-        .select("guest_name, is_anonymous, message, created_at")
-        .eq("status", "approved")
-        .order("created_at", { ascending: false })
-        .limit(100);
-
-      if (messagesError) throw messagesError;
-      return json({
-        ok: true,
-        messages: (messages || []).map((message) => ({
-          guest_name: message.is_anonymous ? "Anonyme" : message.guest_name,
-          message: message.message,
-          created_at: message.created_at,
-        })),
-      });
+    // A site_data request already requires a valid, high-entropy invitation code.
+    // Avoid applying the shared IP limit to page refreshes from the Vercel proxy.
+    if (body.action !== "site_data" && !(await checkRateLimit(client, request))) {
+      return json({ ok: false, error: "rate_limited" }, 429);
     }
 
     const code = cleanCode(body.code);
@@ -151,6 +182,21 @@ Deno.serve(async (request: Request) => {
 
     const deadline = await getDeadline(client);
     const closed = getParisDate() >= deadline;
+
+    if (body.action === "list_messages") {
+      return json({ ok: true, messages: await getApprovedMessages(client) });
+    }
+
+    if (body.action === "site_data") {
+      return json({
+        ok: true,
+        guests,
+        deadline,
+        closed,
+        content: await getSiteContent(client),
+        messages: await getApprovedMessages(client),
+      });
+    }
 
     if (body.action === "lookup") {
       return json({ ok: true, guests, deadline, closed });

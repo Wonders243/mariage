@@ -8,14 +8,16 @@ create table if not exists public.wedding_site_content (
 );
 
 alter table public.wedding_site_content enable row level security;
-grant select on public.wedding_site_content to anon, authenticated;
+revoke select on public.wedding_site_content from anon, public;
+grant select on public.wedding_site_content to authenticated;
 grant update on public.wedding_site_content to authenticated;
 
 drop policy if exists "Wedding content is public" on public.wedding_site_content;
-create policy "Wedding content is public"
+drop policy if exists "Only the site admin can read wedding content" on public.wedding_site_content;
+create policy "Only the site admin can read wedding content"
   on public.wedding_site_content for select
-  to anon, authenticated
-  using (id = 'main');
+  to authenticated
+  using (id = 'main' and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('YOUR_ADMIN_EMAIL'));
 
 drop policy if exists "Only the site admin can update wedding content" on public.wedding_site_content;
 create policy "Only the site admin can update wedding content"
@@ -76,14 +78,18 @@ values (
 on conflict (id) do nothing;
 
 insert into storage.buckets (id, name, public)
-values ('wedding-photos', 'wedding-photos', true)
+values ('wedding-photos', 'wedding-photos', false)
 on conflict (id) do update set public = excluded.public;
 
 drop policy if exists "Wedding photos are public" on storage.objects;
-create policy "Wedding photos are public"
+drop policy if exists "Only the site admin can read wedding photos" on storage.objects;
+create policy "Only the site admin can read wedding photos"
   on storage.objects for select
-  to anon, authenticated
-  using (bucket_id = 'wedding-photos');
+  to authenticated
+  using (
+    bucket_id = 'wedding-photos'
+    and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('YOUR_ADMIN_EMAIL')
+  );
 
 drop policy if exists "Only the site admin can upload wedding photos" on storage.objects;
 create policy "Only the site admin can upload wedding photos"

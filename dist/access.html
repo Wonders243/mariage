@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f3f1e8">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Accès privé — Merveilles & Megan</title>
+    <link rel="icon" href="assets/site-mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/access.css">
+    <script src="js/supabase-config.js"></script>
+    <script type="module" src="js/access.js"></script>
+  </head>
+  <body class="access-page">
+    <main class="access-layout">
+      <section class="access-story" aria-labelledby="couple-name">
+        <a class="access-mark" href="/access.html" aria-label="Merveilles et Megan">
+          <span class="access-mark__monogram">M<span>&</span>M</span>
+          <span class="access-mark__label">Merveilles & Megan</span>
+        </a>
+        <div class="access-story__copy">
+          <p class="access-eyebrow">Un moment à partager</p>
+          <h1 id="couple-name">Notre petit<br>coin privé.</h1>
+          <p>Les informations de notre mariage sont réservées à nos proches. Entre le code inscrit sur ton faire-part pour nous rejoindre.</p>
+          <span class="access-story__ornament" aria-hidden="true">✳</span>
+        </div>
+        <p class="access-story__footer">Avec toute notre affection</p>
+      </section>
+
+      <section class="access-panel" aria-labelledby="access-title">
+        <div class="access-panel__inner">
+          <p class="access-eyebrow access-eyebrow--wine">Bienvenue</p>
+          <h2 id="access-title">Pour continuer</h2>
+          <p class="access-panel__intro">Choisis ta façon d’accéder à l’espace.</p>
+
+          <div class="access-tabs" role="tablist" aria-label="Choisir un mode d’accès">
+            <button class="access-tab" id="tab-guest" type="button" role="tab" aria-selected="true" aria-controls="panel-guest">J’ai mon invitation</button>
+            <button class="access-tab" id="tab-admin" type="button" role="tab" aria-selected="false" aria-controls="panel-admin" tabindex="-1">Je gère le site</button>
+          </div>
+
+          <section id="panel-guest" class="access-form-panel" role="tabpanel" aria-labelledby="tab-guest">
+            <form id="guest-access-form" novalidate>
+              <label class="access-field" for="invitation-code">
+                <span>Code du faire-part</span>
+                <input id="invitation-code" name="code" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="14" placeholder="XXXX-XXXX-XXXX" aria-describedby="guest-help guest-status" required>
+              </label>
+              <p class="access-help" id="guest-help">Le code se trouve sur le faire-part reçu.</p>
+              <button class="access-submit" id="guest-submit" type="submit">Entrer sur le site</button>
+              <p class="access-status" id="guest-status" role="status" aria-live="polite"></p>
+            </form>
+          </section>
+
+          <section id="panel-admin" class="access-form-panel" role="tabpanel" aria-labelledby="tab-admin" hidden>
+            <form id="admin-access-form">
+              <label class="access-field" for="admin-email">
+                <span>Adresse e-mail</span>
+                <input id="admin-email" name="email" type="email" autocomplete="username" required>
+              </label>
+              <label class="access-field" for="admin-password">
+                <span>Mot de passe</span>
+                <input id="admin-password" name="password" type="password" autocomplete="current-password" required>
+              </label>
+              <button class="access-submit" id="admin-submit" type="submit">Ouvrir l’administration</button>
+              <p class="access-status" id="admin-status" role="status" aria-live="polite"></p>
+            </form>
+          </section>
+
+          <p class="access-private-note"><span aria-hidden="true">✳</span> Cet espace est réservé à nos invités.</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

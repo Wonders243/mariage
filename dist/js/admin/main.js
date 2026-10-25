@@ -89,7 +89,7 @@ const loadContent = async () => {
 
   if (error) throw error;
   currentContent = data.content;
-  populateEditor(currentContent);
+  await populateEditor(currentContent, supabase);
   setStatus(saveStatus, '');
 };
 
@@ -482,7 +482,9 @@ loginForm.addEventListener('submit', async (event) => {
 });
 
 document.querySelector('#sign-out').addEventListener('click', async () => {
+  await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
   if (supabase) await supabase.auth.signOut();
+  window.location.replace('/access.html');
 });
 
 document.querySelector('#add-edit-invitation-guest').addEventListener('click', () => {
@@ -773,7 +775,7 @@ contentForm.addEventListener('submit', async (event) => {
     const oldPaths = storedPhotoPaths(currentContent);
 
     currentContent = nextContent;
-    populateEditor(nextContent);
+    await populateEditor(nextContent, supabase);
 
     const unusedPaths = [...new Set(oldPaths)].filter((path) => !retainedPaths.has(path));
     try {

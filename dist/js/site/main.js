@@ -7,5 +7,12 @@ import { initRsvp } from './rsvp.js';
 initNavigation();
 initScrollReveals();
 initCountdown();
-loadSiteContent();
-initRsvp();
+document.querySelector('#site-lock')?.addEventListener('click', async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  button.textContent = 'Fermeture…';
+  await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
+  window.location.replace('/access.html');
+});
+const siteData = await loadSiteContent();
+initRsvp(siteData);

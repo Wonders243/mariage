@@ -19,8 +19,18 @@ export async function uploadPhoto(supabase, file) {
   });
 
   if (error) throw error;
-  const { data } = supabase.storage.from(photoBucket).getPublicUrl(path);
-  return { url: data.publicUrl, storagePath: path };
+  try {
+    return { url: await createPhotoPreviewUrl(supabase, path), storagePath: path };
+  } catch (previewError) {
+    await supabase.storage.from(photoBucket).remove([path]);
+    throw previewError;
+  }
+}
+
+export async function createPhotoPreviewUrl(supabase, path) {
+  const { data, error } = await supabase.storage.from(photoBucket).createSignedUrl(path, 60 * 60);
+  if (error) throw error;
+  return data.signedUrl;
 }
 
 export async function removeStoredPhotos(supabase, paths) {

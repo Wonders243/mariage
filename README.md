@@ -10,8 +10,10 @@ Site en français, responsive, hébergé comme site statique sur Vercel. Les inf
 - `dist/js/admin/` regroupe l’éditeur, la connexion d’administration et le téléversement des photos.
 - `dist/js/shared/supabase-client.js` centralise la connexion Supabase ; `dist/js/supabase-config.js` reçoit l’URL et la clé publique du projet.
 - `supabase/setup.sql` prépare le contenu, les règles d’accès et le stockage photo.
+- `supabase/access-gate-setup.sql` rend privés le contenu et les photos déjà en place.
 - `supabase/rsvp-setup.sql` ajoute les invitations privées, les réponses de présence et les petits mots modérés.
 - `supabase/functions/wedding-rsvp/` contient la fonction serveur qui vérifie les codes et enregistre les réponses.
+- `api/`, `lib/site-access.js` et `proxy.js` protègent le site avec une session serveur signée.
 
 Le site reste sans compilation : Vercel sert directement `dist`.
 
@@ -22,9 +24,26 @@ Le site reste sans compilation : Vercel sert directement `dist`.
 3. Ouvrir `supabase/setup.sql`, remplacer chaque `YOUR_ADMIN_EMAIL` par l’adresse du compte d’administration, puis exécuter le fichier dans **SQL Editor**.
 4. Dans **Project Settings > API**, copier l’URL du projet et sa clé **publishable** (ou l’ancienne clé publique `anon`) dans `dist/js/supabase-config.js`.
 5. Ne jamais mettre la clé `service_role` ou une clé secrète dans le site.
-6. Dans Vercel, utiliser `dist` comme dossier de sortie. Après le premier déploiement, ouvrir `/admin.html` et se connecter avec le compte d’administration.
+6. Dans Vercel, utiliser `dist` comme dossier de sortie. L’accès au site se fait ensuite depuis `/access.html`, avec un code d’invitation ou le compte d’administration.
 
-La page publique peut lire les informations du mariage. Les règles RLS de Supabase limitent les modifications et les téléversements de photos à l’adresse d’administration définie dans `setup.sql`. Le dossier photo Supabase est public pour permettre l’affichage des images sur le site.
+Le contenu du mariage et les photos du bucket sont privés. Les invités reçoivent le contenu par la fonction Supabase après vérification de leur code ; les photos stockées dans Supabase sont servies avec des liens temporaires. Le compte d’administration conserve son accès direct grâce aux règles RLS.
+
+## Porte d’accès du site
+
+Le contrôle d’accès s’exécute sur Vercel avant la distribution des pages et de leurs fichiers. Il pose un cookie de session `HttpOnly` après vérification du code d’invitation, ou après connexion Supabase Auth avec l’adresse d’administration autorisée. Les sessions invités durent 30 jours ; celles de l’administration durent 8 heures.
+
+Dans les variables d’environnement Vercel, configurer :
+
+- `SITE_ACCESS_SECRET` : secret aléatoire d’au moins 32 caractères, généré localement (par exemple avec `node --input-type=module -e "import { randomBytes } from 'node:crypto'; console.log(randomBytes(32).toString('base64url'))"`).
+- `WEDDING_ADMIN_EMAIL` : la même adresse que dans les règles SQL Supabase.
+- `SUPABASE_URL` : l’URL du projet Supabase.
+- `SUPABASE_PUBLISHABLE_KEY` : la clé publishable du projet. La configuration accepte aussi `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` ou l’ancienne clé publique `SUPABASE_ANON_KEY`.
+
+Ne mets aucune clé `SUPABASE_SECRET_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, aucun mot de passe PostgreSQL ni secret JWT dans Vercel ou dans le navigateur. La fonction Edge RSVP continue d’utiliser sa clé serveur fournie par Supabase.
+
+Pour appliquer la protection à un projet déjà configuré, remplace `YOUR_ADMIN_EMAIL` dans `supabase/access-gate-setup.sql` par l’adresse admin et exécute ce fichier dans **Supabase > SQL Editor**. Il retire la lecture publique du contenu et rend privé le bucket photo existant. Déploie d’abord la fonction `wedding-rsvp` mise à jour, puis déploie cette version du site sur Vercel après avoir ajouté les variables d’environnement. Exécute ensuite le script SQL de migration afin que le nouveau site puisse prendre le relais avant la fermeture des anciennes lectures publiques. Les photos téléversées restent modifiables dans l’administration.
+
+Le projet sert désormais les endpoints `/api/access`, `/api/session`, `/api/site-data` et `/api/logout`. Pour que ce contrôle s’applique en local, utiliser Vercel CLI (`vercel dev`) avec les mêmes variables ; un simple serveur de fichiers ne lance ni les fonctions API ni le contrôle d’accès.
 
 ## Confirmation de présence
 

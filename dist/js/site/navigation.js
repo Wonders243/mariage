@@ -19,8 +19,8 @@ export function initNavigation() {
     setMenuOpen(navToggle.getAttribute('aria-expanded') !== 'true');
   });
 
-  mainNav?.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => setMenuOpen(false));
+  mainNav?.querySelectorAll('a, button').forEach((item) => {
+    item.addEventListener('click', () => setMenuOpen(false));
   });
 
   document.addEventListener('pointerdown', (event) => {

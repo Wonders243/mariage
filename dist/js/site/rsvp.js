@@ -210,19 +210,27 @@ const renderPublicMessages = (messages) => {
   schedulePublicMessagesLayout();
 };
 
-const loadPublicMessages = async () => {
-  if (!supabase || !publicMessages) return;
-  try {
-    const data = await callRsvp({ action: "list_messages" });
-    renderPublicMessages(Array.isArray(data.messages) ? data.messages : []);
-  } catch {
-    publicMessages.replaceChildren();
-    publicMessages.classList.remove("is-ticker", "is-static-overflow");
-    const error = document.createElement("p");
-    error.className = "wishes-empty";
-    error.textContent = "Les petits mots ne sont pas disponibles pour le moment.";
-    publicMessages.append(error);
+const showInvitation = (data) => {
+  if (!data?.guests?.length) return;
+  activeCode = normalizeInvitationCode(data.code || "");
+  codeInput.value = activeCode.match(/.{1,4}/g)?.join("-") || "";
+  renderGuests(data.guests);
+  responsePanel.hidden = false;
+  setStatus(lookupStatus, "");
+
+  const deadline = formatDeadline(data.deadline);
+  if (data.closed) {
+    setStatus(responseStatus, "La date limite est passée. Les réponses déjà enregistrées restent visibles, mais ne peuvent plus être modifiées.", true);
+    submitButton.disabled = true;
+    guestList.querySelectorAll("input").forEach((input) => { input.disabled = true; });
+    return;
   }
+
+  submitButton.disabled = false;
+  const hasPreviousResponse = data.guests.some((guest) => typeof guest.attending === "boolean");
+  setStatus(responseStatus, hasPreviousResponse
+    ? `Votre réponse précédente est affichée. Vous pouvez la modifier avant le ${deadline}.`
+    : deadline ? `Merci de répondre avant le ${deadline}.` : "");
 };
 
 lookupForm?.addEventListener("submit", async (event) => {
@@ -240,22 +248,7 @@ lookupForm?.addEventListener("submit", async (event) => {
 
   try {
     const data = await callRsvp({ action: "lookup", code: activeCode });
-    renderGuests(data.guests);
-    responsePanel.hidden = false;
-    setStatus(lookupStatus, "");
-
-    const deadline = formatDeadline(data.deadline);
-    if (data.closed) {
-      setStatus(responseStatus, "La date limite est passée. Les réponses déjà enregistrées restent visibles, mais ne peuvent plus être modifiées.", true);
-      submitButton.disabled = true;
-      guestList.querySelectorAll("input").forEach((input) => { input.disabled = true; });
-    } else {
-      submitButton.disabled = false;
-      const hasPreviousResponse = data.guests.some((guest) => typeof guest.attending === "boolean");
-      setStatus(responseStatus, hasPreviousResponse
-        ? `Votre réponse précédente est affichée. Vous pouvez la modifier avant le ${deadline}.`
-        : deadline ? `Merci de répondre avant le ${deadline}.` : "");
-    }
+    showInvitation({ ...data, code: activeCode });
   } catch (error) {
     setStatus(lookupStatus, error.message || "Le code n’a pas pu être vérifié.", true);
   } finally {
@@ -333,7 +326,7 @@ codeInput?.addEventListener("input", () => {
   }
 });
 
-export async function initRsvp() {
+export async function initRsvp(siteData = null) {
   if (!lookupForm) return;
   if (!isSupabaseConfigured) {
     setStatus(lookupStatus, "La confirmation n’est pas encore disponible. Réessaie plus tard.", true);
@@ -342,7 +335,9 @@ export async function initRsvp() {
 
   try {
     supabase = await connectSupabase();
-    await loadPublicMessages();
+    renderPublicMessages(Array.isArray(siteData?.messages) ? siteData.messages : []);
+    showInvitation(siteData);
+    if (!siteData) setStatus(lookupStatus, "Les informations de l’invitation ne sont pas disponibles. Recharge la page ou saisis à nouveau ton code.", true);
   } catch {
     setStatus(lookupStatus, "La confirmation n’est pas encore disponible. Réessaie plus tard.", true);
   }

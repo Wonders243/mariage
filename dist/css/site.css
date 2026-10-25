@@ -40,6 +40,16 @@
 }
 .main-nav a:hover, .main-nav a:focus-visible { color: var(--wine); text-decoration: underline; }
 .main-nav .nav-rsvp { padding: .45rem .05rem; border-bottom: 1px solid var(--wine); color: var(--wine); }
+.nav-lock {
+  padding: .45rem 0;
+  border: 0;
+  border-bottom: 1px solid rgba(45, 70, 55, .22);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: .75rem;
+}
+.nav-lock:hover, .nav-lock:focus-visible { color: var(--wine); }
 
 .hero {
   position: relative;

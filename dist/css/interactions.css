@@ -70,6 +70,7 @@ html.js-enabled [data-reveal].is-visible { opacity: 1; transform: translate(0, 0
   }
   html.js-enabled .main-nav a { display: block; padding: .8rem .1rem; border-bottom: 1px solid var(--rule); font-size: .84rem; }
   html.js-enabled .main-nav .nav-rsvp { padding-left: .1rem; border: 0; text-decoration: underline; }
+  html.js-enabled .main-nav .nav-lock { display: block; width: fit-content; padding: .8rem .1rem; border: 0; font-size: .84rem; }
   html:not(.js-enabled) .site-header { display: grid; grid-template-columns: 1fr; gap: .7rem; }
   html:not(.js-enabled) .wordmark { justify-content: center; }
   html:not(.js-enabled) .main-nav { justify-content: center; flex-wrap: wrap; gap: .75rem 1rem; }

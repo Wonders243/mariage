@@ -1,3 +1,5 @@
+import { createPhotoPreviewUrl } from './photo-storage.js';
+
 let editorState = {};
 
 const safeImageUrl = (value) => {
@@ -148,7 +150,7 @@ const renderEvents = (events) => {
   events.forEach((event, index) => addEventEditor(eventsEditor, event, index));
 };
 
-export function populateEditor(content) {
+export async function populateEditor(content, supabase) {
   const { form, eventsEditor, photosEditor, heroFileInput, heroPreview, heroPreviewWrap } = editorState;
   Object.entries(content).forEach(([key, value]) => {
     const field = form.elements.namedItem(key);
@@ -157,6 +159,13 @@ export function populateEditor(content) {
 
   editorState.heroImageUrl = safeImageUrl(content.heroImageUrl);
   editorState.heroStoragePath = content.heroStoragePath || '';
+  if (editorState.heroStoragePath && supabase) {
+    try {
+      editorState.heroImageUrl = await createPhotoPreviewUrl(supabase, editorState.heroStoragePath);
+    } catch (error) {
+      console.warn('La photo d’accueil n’a pas pu être prévisualisée.', error);
+    }
+  }
   if (editorState.heroImageUrl) heroPreview.src = editorState.heroImageUrl;
   else heroPreview.removeAttribute('src');
   heroPreviewWrap.hidden = !editorState.heroImageUrl;
@@ -166,7 +175,16 @@ export function populateEditor(content) {
   (Array.isArray(content.events) ? content.events : []).forEach((event, index) => addEventEditor(eventsEditor, event, index));
 
   photosEditor.replaceChildren();
-  (Array.isArray(content.galleryImages) ? content.galleryImages : []).forEach((photo, index) => addPhotoEditor(photosEditor, photo, index));
+  const galleryImages = await Promise.all((Array.isArray(content.galleryImages) ? content.galleryImages : []).map(async (photo) => {
+    if (!photo?.storagePath) return photo;
+    try {
+      return { ...photo, url: await createPhotoPreviewUrl(supabase, photo.storagePath) };
+    } catch (error) {
+      console.warn('Une photo de la galerie n’a pas pu être prévisualisée.', error);
+      return photo;
+    }
+  }));
+  galleryImages.forEach((photo, index) => addPhotoEditor(photosEditor, photo, index));
 }
 
 export function collectContentFields(form) {
