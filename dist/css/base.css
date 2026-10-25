@@ -1,0 +1,44 @@
+:root {
+  color-scheme: light;
+  --paper: #faf9f5;
+  --surface: #fffefa;
+  --cream: #f1efe5;
+  --green: #2d4637;
+  --green-dark: #20372b;
+  --sage: #e5eadf;
+  --wine: #8b3448;
+  --ink: #28372e;
+  --muted: #667168;
+  --rule: rgba(45, 70, 55, .16);
+  --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --sans: "Aptos", "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+  --radius: 1.25rem;
+  --radius-lg: 2rem;
+  --shadow-soft: 0 18px 55px rgba(32, 55, 43, .09);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; }
+button, input, textarea { font: inherit; }
+::selection { background: #d8e2d5; color: var(--green-dark); }
+:focus-visible { outline: 3px solid #b45b6e; outline-offset: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+

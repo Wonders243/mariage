@@ -1,0 +1,5 @@
+project_id = "site-mariage-merveilles-et-megan"
+
+[functions.wedding-rsvp]
+verify_jwt = false
+

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f2e9">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Modifier le site — Merveilles & Megan</title>
+    <link rel="icon" href="assets/site-mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/site.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="js/supabase-config.js"></script>
+    <script type="module" src="js/admin/main.js"></script>
+  </head>
+  <body class="admin-page">
+    <header class="admin-header">
+      <a class="wordmark" href="index.html" aria-label="Retour au site">
+        <span class="wordmark__monogram">M<span>&</span>M</span>
+        <span class="wordmark__label">Merveilles & Megan</span>
+      </a>
+      <a class="admin-header__site-link" href="index.html">Voir le site</a>
+    </header>
+
+    <main class="admin-main">
+      <div class="admin-intro">
+        <p class="eyebrow">Votre espace privé</p>
+        <h1>Modifier le site</h1>
+        <p>Les changements enregistrés apparaîtront sur le site au prochain chargement.</p>
+      </div>
+
+      <section class="admin-notice" id="setup-notice" hidden>
+        <h2>Connexion à préparer</h2>
+        <p>Il reste à créer votre projet Supabase, puis à ajouter son URL et sa clé publishable dans <code>supabase-config.js</code>. Les étapes sont détaillées dans le fichier README du projet.</p>
+      </section>
+
+      <section class="admin-card admin-login" id="login-panel" hidden aria-labelledby="login-title">
+        <h2 id="login-title">Connexion</h2>
+        <p>Connecte-toi avec le compte d’administration créé dans Supabase.</p>
+        <form id="login-form">
+          <label class="admin-field">
+            <span>Adresse e-mail</span>
+            <input name="email" type="email" autocomplete="username" required>
+          </label>
+          <label class="admin-field">
+            <span>Mot de passe</span>
+            <input name="password" type="password" autocomplete="current-password" required>
+          </label>
+          <button class="button" type="submit">Se connecter</button>
+          <p class="admin-status" id="login-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="admin-editor" id="editor-panel" hidden aria-label="Édition du site">
+        <div class="admin-account">
+          <span id="signed-in-email"></span>
+          <button class="admin-quiet-button" id="sign-out" type="button">Se déconnecter</button>
+        </div>
+
+        <form class="admin-form" id="content-form">
+          <fieldset class="admin-card">
+            <legend>Accueil</legend>
+            <div class="admin-fields admin-fields--two">
+              <label class="admin-field"><span>Prénom 1</span><input name="nameOne" type="text" required></label>
+              <label class="admin-field"><span>Prénom 2</span><input name="nameTwo" type="text" required></label>
+              <label class="admin-field"><span>Phrase au-dessus des prénoms</span><input name="heroEyebrow" type="text"></label>
+              <label class="admin-field"><span>Date du mariage</span><input name="weddingDate" type="date" required></label>
+              <label class="admin-field admin-field--full"><span>Petit mot d’accueil</span><input name="heroIntro" type="text"></label>
+              <label class="admin-field"><span>Titre du compte à rebours</span><input name="countdownTitle" type="text"></label>
+            </div>
+
+            <div class="admin-photo-feature">
+              <div class="admin-photo-preview" id="hero-preview-wrap"><img id="hero-preview" alt="Aperçu de la photo d’accueil"></div>
+              <div class="admin-fields">
+                <label class="admin-field"><span>Photo d’accueil</span><input id="hero-photo-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
+                <label class="admin-field"><span>Description de la photo</span><input name="heroImageAlt" type="text"></label>
+                <label class="admin-field"><span>Légende</span><input name="heroCaption" type="text"></label>
+                <p class="admin-help">Choisis une image depuis ton appareil pour remplacer la photo.</p>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset class="admin-card">
+            <legend>Programme</legend>
+            <label class="admin-field"><span>Titre de la section</span><input name="programmeTitle" type="text"></label>
+            <div class="admin-repeat-list" id="events-editor"></div>
+            <button class="admin-secondary-button" id="add-event" type="button">Ajouter un rendez-vous</button>
+          </fieldset>
+
+          <fieldset class="admin-card">
+            <legend>Tenue</legend>
+            <div class="admin-fields admin-fields--two">
+              <label class="admin-field"><span>Petit titre</span><input name="dressLabel" type="text"></label>
+              <label class="admin-field"><span>Indication vestimentaire</span><input name="dressNote" type="text"></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="admin-card">
+            <legend>Confirmation de présence</legend>
+            <div class="admin-fields admin-fields--two">
+              <label class="admin-field"><span>Titre</span><input name="rsvpTitle" type="text"></label>
+              <label class="admin-field"><span>Répondre avant le</span><input name="rsvpDeadline" type="date"></label>
+              <label class="admin-field admin-field--full"><span>Texte d’introduction</span><input name="rsvpMessage" type="text"></label>
+            </div>
+            <p class="admin-help">Les invités saisiront le code de leur faire-part. La liste des personnes et leurs réponses se gèrent ci-dessous.</p>
+          </fieldset>
+
+          <fieldset class="admin-card admin-invitation-manager">
+            <legend>Invitations et réponses</legend>
+            <p>Crée un code par faire-part. Chaque personne inscrite ici pourra répondre séparément.</p>
+            <div class="admin-fields admin-fields--two">
+              <label class="admin-field"><span>Nom interne du faire-part</span><input id="invitation-label" type="text" maxlength="100" placeholder="Ex. Famille Martin"></label>
+              <label class="admin-field admin-field--full"><span>Personnes invitées — une par ligne</span><textarea id="invitation-guests" rows="4" maxlength="2000" placeholder="Prénom Nom&#10;Prénom Nom" required></textarea></label>
+            </div>
+            <button class="admin-secondary-button" id="create-invitation" type="button">Créer le code d’invitation</button>
+            <p class="admin-status" id="invitation-create-status" role="status" aria-live="polite"></p>
+            <div class="admin-invitation-code" id="invitation-code-result" hidden>
+              <div><strong>Code à inscrire sur le faire-part</strong><p>Copie-le maintenant : il ne sera pas conservé en clair.</p></div>
+              <output id="invitation-code-value"></output>
+              <button class="admin-quiet-button" id="copy-invitation-code" type="button">Copier le code</button>
+            </div>
+            <div class="admin-invitation-list-heading">
+              <h2>Suivi des réponses</h2>
+              <div>
+                <button class="admin-quiet-button" id="refresh-invitations" type="button">Actualiser</button>
+                <button class="admin-quiet-button" id="export-invitations" type="button">Exporter en CSV</button>
+              </div>
+            </div>
+            <p class="admin-status" id="invitation-list-status" role="status" aria-live="polite"></p>
+            <div class="admin-invitation-list" id="invitation-list"></div>
+          </fieldset>
+
+          <fieldset class="admin-card admin-message-manager">
+            <legend>Petits mots des invités</legend>
+            <p>Les messages envoyés avec un code d’invitation restent privés jusqu’à ce que tu les publies ici.</p>
+            <div class="admin-invitation-list-heading">
+              <h2>Modération des messages</h2>
+              <div><button class="admin-quiet-button" id="refresh-guest-messages" type="button">Actualiser</button></div>
+            </div>
+            <p class="admin-status" id="guest-messages-admin-status" role="status" aria-live="polite"></p>
+            <div class="admin-guest-message-list" id="guest-messages-admin-list"></div>
+          </fieldset>
+
+          <fieldset class="admin-card">
+            <legend>Galerie</legend>
+            <div class="admin-fields admin-fields--two">
+              <label class="admin-field"><span>Petit titre</span><input name="galleryEyebrow" type="text"></label>
+              <label class="admin-field"><span>Titre de la galerie</span><input name="galleryTitle" type="text"></label>
+            </div>
+            <div class="admin-repeat-list admin-repeat-list--photos" id="photos-editor"></div>
+            <button class="admin-secondary-button" id="add-photo" type="button">Ajouter une photo</button>
+            <p class="admin-help">Les images ajoutées seront visibles par les personnes qui consultent le site.</p>
+          </fieldset>
+
+          <div class="admin-savebar">
+            <p class="admin-status" id="save-status" role="status" aria-live="polite"></p>
+            <button class="button" id="save-content" type="submit">Enregistrer les changements</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

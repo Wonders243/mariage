@@ -4,15 +4,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#f5f2e9">
-    <meta name="description" content="Retrouvez les informations du mariage de Merveilles et Megan, le 16 janvier 2027 à Alès.">
+    <meta name="description" content="On se marie le 16 janvier 2027 à Alès. Retrouvez les informations pratiques de la journée.">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Merveilles & Megan — 16 janvier 2027">
-    <meta property="og:description" content="Une journée à célébrer ensemble, à Alès.">
-    <meta property="og:image" content="assets/couple-ales.jpg">
+    <meta property="og:description" content="On se marie le 16 janvier 2027 à Alès !">
+    <meta property="og:image" content="assets/demande-en-mariage.jpg">
     <title>Merveilles & Megan — 16 janvier 2027</title>
     <link rel="icon" href="assets/site-mark.svg" type="image/svg+xml">
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/site.css">
+    <link rel="stylesheet" href="css/interactions.css">
+    <script src="js/supabase-config.js"></script>
+    <script type="module" src="js/site/main.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#contenu">Aller au contenu</a>
@@ -20,183 +23,163 @@
     <header class="site-header">
       <a class="wordmark" href="#accueil" aria-label="Merveilles et Megan, accueil">
         <span class="wordmark__monogram">M<span>&</span>M</span>
-        <span class="wordmark__label">Notre mariage</span>
+        <span class="wordmark__label"><span data-content="nameOne">Merveilles</span> &amp; <span data-content="nameTwo">Megan</span></span>
       </a>
-      <nav class="main-nav" aria-label="Navigation principale">
-        <a href="#programme">Programme</a>
-        <a href="#lieux">Lieux</a>
-        <a href="#galerie">Galerie</a>
-        <a href="#faq">FAQ</a>
-        <a class="nav-rsvp" href="#rsvp">RSVP <span aria-hidden="true">↗</span></a>
+      <button class="nav-toggle" type="button" aria-controls="main-nav" aria-expanded="false" aria-label="Ouvrir le menu">
+        <span class="nav-toggle__icon" aria-hidden="true"><i></i><i></i></span>
+        <span class="nav-toggle__label">Menu</span>
+      </button>
+      <nav class="main-nav" id="main-nav" aria-label="Navigation principale">
+        <a href="#programme">Le programme</a>
+        <a href="#mots-doux">Vos petits mots</a>
+        <a href="#galerie">Quelques photos</a>
+        <a class="nav-rsvp" href="#rsvp">Répondre</a>
       </nav>
     </header>
 
     <main id="contenu">
       <section class="hero" id="accueil" aria-labelledby="hero-title">
-        <div class="hero__copy">
-          <p class="eyebrow"><span class="eyebrow__line"></span> 16 janvier 2027 <span class="eyebrow__dot">·</span> Alès</p>
-          <h1 id="hero-title">Merveilles <span class="ampersand">&</span><br>Megan</h1>
-          <p class="hero__intro">Un oui, une promesse, une journée à partager.<br>Nous avons hâte de célébrer ce moment avec vous.</p>
-          <a class="button button--dark" href="#programme">Découvrir la journée <span aria-hidden="true">↓</span></a>
-          <p class="hero__date"><span class="hero__date-rule"></span><time datetime="2027-01-16">Samedi 16 janvier 2027</time></p>
+        <div class="hero__copy" data-reveal="up">
+          <p class="eyebrow" data-content="heroEyebrow">On se marie !</p>
+          <h1 id="hero-title" aria-label="Merveilles et Megan">
+            <span class="hero__name" data-content="nameOne">Merveilles</span>
+            <span class="ampersand hero__ampersand" aria-hidden="true">&amp;</span>
+            <span class="hero__name" data-content="nameTwo">Megan</span>
+          </h1>
+          <p class="hero__intro" data-content="heroIntro">On espère vous y retrouver !</p>
+          <a class="button button--dark" href="#programme">Les infos de la journée</a>
+          <p class="hero__date"><time datetime="2027-01-16" data-content="weddingDate">Samedi 16 janvier 2027</time></p>
         </div>
         <figure class="hero__portrait">
-          <div class="hero__portrait-frame">
-            <img src="assets/couple-alès.jpg" alt="Merveilles et Megan, ensemble devant une cascade" fetchpriority="high">
-          </div>
-          <figcaption><span class="caption-heart" aria-hidden="true">♡</span> Avec joie, Merveilles & Megan</figcaption>
+          <img id="hero-image" src="assets/demande-en-mariage.jpg" alt="Merveilles et Megan lors de leur demande en mariage, sur une terrasse face aux montagnes" fetchpriority="high">
+          <figcaption>Le moment de la demande</figcaption>
         </figure>
-        <img class="hero__rose" src="assets/rose-bordeaux.png" alt="" aria-hidden="true">
-        <span class="hero__seal" aria-hidden="true">Un jour<br>inoubliable</span>
       </section>
 
-      <section class="countdown-band" aria-labelledby="countdown-title">
+      <section class="countdown-band" aria-labelledby="countdown-title" data-reveal="up">
         <div class="countdown-band__intro">
-          <p class="eyebrow eyebrow--light">Le grand jour approche</p>
-          <h2 id="countdown-title">On se retrouve bientôt</h2>
+          <h2 id="countdown-title" data-content="countdownTitle">On compte les jours</h2>
         </div>
         <div class="countdown" role="timer" aria-label="Compte à rebours avant la cérémonie">
-          <div class="countdown__item"><span class="countdown__number" data-unit="days">—</span><span class="countdown__label">jours</span></div>
-          <span class="countdown__separator" aria-hidden="true">:</span>
-          <div class="countdown__item"><span class="countdown__number" data-unit="hours">—</span><span class="countdown__label">heures</span></div>
-          <span class="countdown__separator" aria-hidden="true">:</span>
-          <div class="countdown__item"><span class="countdown__number" data-unit="minutes">—</span><span class="countdown__label">minutes</span></div>
-          <span class="countdown__separator countdown__separator--seconds" aria-hidden="true">:</span>
-          <div class="countdown__item countdown__item--seconds"><span class="countdown__number" data-unit="seconds">—</span><span class="countdown__label">secondes</span></div>
+          <span class="countdown__number" data-unit="days">—</span>
+          <span class="countdown__label">jours</span>
         </div>
-        <p class="countdown-band__note" data-countdown-note>Avant de se dire oui à la mairie d’Alès.</p>
       </section>
 
       <section class="section programme-section" id="programme" aria-labelledby="programme-title">
-        <div class="section-heading">
-          <p class="eyebrow">Le fil de cette journée</p>
-          <h2 id="programme-title">Un moment après l’autre</h2>
-          <p>Voici les rendez-vous déjà prévus. Les détails complémentaires seront ajoutés lorsqu’ils seront confirmés.</p>
+        <div class="section-heading" data-reveal="up">
+          <h2 id="programme-title" data-content="programmeTitle">Les rendez-vous</h2>
         </div>
-        <div class="programme-list">
-          <article class="programme-item">
-            <div class="programme-item__marker" aria-hidden="true"><span>01</span></div>
+        <div class="programme-list" id="programme-list">
+          <article class="programme-item" data-reveal="up">
+            <p class="programme-item__time">15 h 30</p>
             <div class="programme-item__content">
-              <p class="programme-item__time">15 h 30</p>
-              <h3>La cérémonie</h3>
-              <p>Rendez-vous à la mairie d’Alès pour célébrer notre union.</p>
+              <h3>À la mairie d’Alès</h3>
+              <p>La cérémonie civile.</p>
+              <a class="text-link" href="https://www.google.com/maps/search/?api=1&query=Mairie+d%27Al%C3%A8s" target="_blank" rel="noreferrer">Ouvrir la carte</a>
             </div>
-            <span class="programme-item__flower" aria-hidden="true">✳</span>
           </article>
-          <article class="programme-item programme-item--second">
-            <div class="programme-item__marker" aria-hidden="true"><span>02</span></div>
+          <article class="programme-item programme-item--second" data-reveal="up">
+            <p class="programme-item__time">20 minutes après la cérémonie</p>
             <div class="programme-item__content">
-              <p class="programme-item__time">Le rendez-vous photo</p>
-              <h3>Au Parc du Bosquet</h3>
-              <p>Les photos sont prévues au Parc du Bosquet, à Alès. L’horaire sera précisé dès qu’il sera confirmé.</p>
+              <h3>Photos au Parc du Bosquet</h3>
+              <p>À Alès.</p>
+              <a class="text-link" href="https://www.google.com/maps/search/?api=1&query=Parc+du+Bosquet+Al%C3%A8s" target="_blank" rel="noreferrer">Ouvrir la carte</a>
             </div>
-            <span class="programme-item__flower" aria-hidden="true">✳</span>
           </article>
         </div>
-      </section>
-
-      <section class="section places-section" id="lieux" aria-labelledby="places-title">
-        <div class="section-heading section-heading--center">
-          <p class="eyebrow">Pour nous retrouver</p>
-          <h2 id="places-title">Deux lieux, à Alès</h2>
-          <p>Les cartes s’ouvriront sur une recherche du lieu choisi.</p>
-        </div>
-        <div class="places-grid">
-          <article class="place-card place-card--ceremony">
-            <div class="place-card__topline"><span class="place-card__number">01</span><span class="place-card__tag">Cérémonie</span></div>
-            <div class="place-card__icon" aria-hidden="true">
-              <svg viewBox="0 0 48 48" fill="none"><path d="M8 39h32M12 39V20l12-8 12 8v19M19 39V27h10v12M18 21h.01M30 21h.01M24 7v5M21 7h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 20h38L24 7 5 20Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
-            </div>
-            <h3>Mairie d’Alès</h3>
-            <p>Samedi 16 janvier 2027<br>À 15 h 30 · Alès</p>
-            <a class="text-link" href="https://www.google.com/maps/search/?api=1&query=Mairie+d%27Al%C3%A8s" target="_blank" rel="noreferrer">Voir sur la carte <span aria-hidden="true">↗</span></a>
-          </article>
-          <article class="place-card place-card--park">
-            <div class="place-card__topline"><span class="place-card__number">02</span><span class="place-card__tag">Photos</span></div>
-            <div class="place-card__icon" aria-hidden="true">
-              <svg viewBox="0 0 48 48" fill="none"><path d="M24 42s14-13.1 14-24A14 14 0 1 0 10 18c0 10.9 14 24 14 24Z" stroke="currentColor" stroke-width="1.7"/><circle cx="24" cy="18" r="4.8" stroke="currentColor" stroke-width="1.7"/><path d="M24 5v4M8 18h4M36 18h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-            </div>
-            <h3>Parc du Bosquet</h3>
-            <p>Séance photo prévue<br>À Alès · Horaire à préciser</p>
-            <a class="text-link" href="https://www.google.com/maps/search/?api=1&query=Parc+du+Bosquet+Al%C3%A8s" target="_blank" rel="noreferrer">Voir sur la carte <span aria-hidden="true">↗</span></a>
-          </article>
-        </div>
-        <div class="places-note"><span aria-hidden="true">✳</span> Aucun autre lieu de réception n’est indiqué pour le moment.</div>
+        <aside class="dress-note" data-reveal="up">
+          <p class="dress-note__label" data-content="dressLabel">Pour la tenue</p>
+          <p data-content="dressNote">Une touche de vert ou de rouge nous ferait plaisir, si vous en avez envie.</p>
+        </aside>
       </section>
 
       <section class="rsvp-section" id="rsvp" aria-labelledby="rsvp-title">
-        <div class="rsvp-section__art" aria-hidden="true">
-          <img src="assets/feuillage-sauge.png" alt="">
-        </div>
-        <div class="rsvp-card">
-          <p class="eyebrow">Un petit mot pour nous</p>
-          <h2 id="rsvp-title">Votre présence nous ferait très plaisir</h2>
-          <p class="rsvp-card__copy">Merci de nous confirmer votre présence avant le <strong>16 décembre 2026</strong>.</p>
-          <div class="rsvp-status" role="status">
-            <span class="rsvp-status__icon" aria-hidden="true">♡</span>
-            <div><strong>Réponse en ligne à connecter</strong><span>Le formulaire sera activé dès que le lien de réponse sera défini.</span></div>
+        <div class="rsvp-card" data-reveal="up">
+          <h2 id="rsvp-title" data-content="rsvpTitle">Vous serez là ?</h2>
+          <p class="rsvp-card__copy">
+            <span data-content="rsvpMessage">Merci de confirmer votre présence avant le</span>
+            <strong data-content="rsvpDeadline">16 décembre 2026</strong>.
+          </p>
+
+          <form class="rsvp-lookup-form" id="rsvp-lookup-form">
+            <label class="rsvp-code-field" for="rsvp-code">
+              <span>Code indiqué sur le faire-part</span>
+              <input id="rsvp-code" name="code" type="text" placeholder="XXXX-XXXX-XXXX" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" maxlength="14" required>
+            </label>
+            <p class="rsvp-code-help">Le code donne accès aux personnes invitées sur ce faire-part.</p>
+            <button class="button button--light" type="submit">Retrouver mon invitation</button>
+            <p class="rsvp-status" id="rsvp-lookup-status" role="status" aria-live="polite"></p>
+          </form>
+
+          <div class="rsvp-response-panel" id="rsvp-response-panel" hidden>
+            <div class="rsvp-response-heading">
+              <h3>Qui sera présent ?</h3>
+              <p>Pour chaque personne invitée, indique si elle sera avec nous.</p>
+            </div>
+            <form id="rsvp-response-form">
+              <div class="rsvp-guest-list" id="rsvp-guest-list"></div>
+              <button class="button button--light" id="rsvp-submit" type="submit">Enregistrer ma réponse</button>
+              <p class="rsvp-status" id="rsvp-response-status" role="status" aria-live="polite"></p>
+            </form>
+            <div class="rsvp-wish">
+              <h3>Un petit mot pour nous ?</h3>
+              <p>Vous pouvez nous écrire sans avoir répondu à la présence. Choisissez votre prénom, puis décidez s’il apparaît sur le site.</p>
+              <form id="guest-wish-form">
+                <label class="rsvp-code-field" for="guest-wish-author">
+                  <span>Qui écrit ce message ?</span>
+                  <select id="guest-wish-author" name="guestId" required>
+                    <option value="">Choisir une personne</option>
+                  </select>
+                </label>
+                <label class="rsvp-code-field" for="guest-wish-message">
+                  <span>Votre mot doux</span>
+                  <textarea id="guest-wish-message" name="message" rows="4" minlength="3" maxlength="700" placeholder="Un souvenir, un souhait, quelques mots…" required></textarea>
+                </label>
+                <label class="rsvp-anonymous-option" for="guest-wish-anonymous">
+                  <input id="guest-wish-anonymous" name="anonymous" type="checkbox">
+                  <span>Afficher mon message anonymement</span>
+                </label>
+                <p class="rsvp-code-help">Votre prénom restera visible dans l’administration pour la modération ; le site affichera « Anonyme ».</p>
+                <button class="button button--light" id="guest-wish-submit" type="submit">Envoyer mon petit mot</button>
+                <p class="rsvp-status" id="guest-wish-status" role="status" aria-live="polite"></p>
+              </form>
+            </div>
           </div>
-          <button class="button button--disabled" type="button" disabled aria-describedby="rsvp-help">Confirmer ma présence <span aria-hidden="true">↗</span></button>
-          <p class="rsvp-help" id="rsvp-help">La date limite de réponse est fixée au 16 décembre 2026.</p>
+        </div>
+      </section>
+
+      <section class="section wishes-section" id="mots-doux" aria-labelledby="wishes-title">
+        <div class="section-heading section-heading--center">
+          <p class="eyebrow">Vos mots nous touchent</p>
+          <h2 id="wishes-title">Quelques petits mots</h2>
+          <p>Les messages apparaissent ici après validation.</p>
+        </div>
+        <div class="wishes-list" id="guest-messages" aria-live="polite">
+          <p class="wishes-empty" id="guest-messages-status" role="status">Les premiers mots doux apparaîtront ici.</p>
         </div>
       </section>
 
       <section class="section gallery-section" id="galerie" aria-labelledby="gallery-title">
-        <div class="section-heading section-heading--center">
-          <p class="eyebrow">Un peu de nous</p>
-          <h2 id="gallery-title">Quelques souvenirs</h2>
-          <p>En attendant de partager cette belle journée avec vous.</p>
+        <div class="section-heading section-heading--center" data-reveal="up">
+          <p class="eyebrow" data-content="galleryEyebrow">En attendant janvier</p>
+          <h2 id="gallery-title" data-content="galleryTitle">Quelques photos de nous</h2>
         </div>
-        <div class="gallery-grid">
-          <figure class="gallery-photo gallery-photo--wide">
+        <div class="gallery-grid" id="gallery-grid">
+          <figure class="gallery-photo gallery-photo--wide" data-reveal="up">
             <img src="assets/couple-variante.jpg" alt="Merveilles et Megan, un moment complice dans la nature" loading="lazy">
-            <figcaption>Ensemble, tout simplement</figcaption>
           </figure>
-          <figure class="gallery-photo gallery-photo--tall">
-            <img src="assets/couple-fond.jpg" alt="Merveilles et Megan souriants devant une cascade" loading="lazy">
-            <figcaption>À bientôt, à Alès</figcaption>
+          <figure class="gallery-photo gallery-photo--tall" data-reveal="up">
+            <img src="assets/couple-fond.png" alt="Merveilles et Megan souriants devant une cascade" loading="lazy">
           </figure>
         </div>
       </section>
 
-      <section class="section faq-section" id="faq" aria-labelledby="faq-title">
-        <div class="faq-intro">
-          <p class="eyebrow">Les réponses utiles</p>
-          <h2 id="faq-title">Questions fréquentes</h2>
-          <p>Une question qui n’est pas ici ? Les informations seront complétées au fil de l’organisation.</p>
-        </div>
-        <div class="faq-list">
-          <details open>
-            <summary>Quand aura lieu le mariage ? <span aria-hidden="true"></span></summary>
-            <p>Le samedi 16 janvier 2027. La cérémonie à la mairie d’Alès commencera à 15 h 30.</p>
-          </details>
-          <details>
-            <summary>Où se retrouvera-t-on pour les photos ? <span aria-hidden="true"></span></summary>
-            <p>Les photos sont prévues au Parc du Bosquet, à Alès. L’horaire sera communiqué lorsqu’il sera confirmé.</p>
-          </details>
-          <details>
-            <summary>Jusqu’à quand puis-je répondre ? <span aria-hidden="true"></span></summary>
-            <p>Merci de confirmer votre présence avant le 16 décembre 2026. Le lien RSVP reste à connecter.</p>
-          </details>
-          <details>
-            <summary>Le programme complet est-il déjà disponible ? <span aria-hidden="true"></span></summary>
-            <p>Seuls les rendez-vous indiqués sur cette page sont confirmés. Les détails complémentaires seront ajoutés lorsqu’ils seront connus.</p>
-          </details>
-        </div>
-      </section>
-
-      <section class="closing-note" aria-label="À bientôt">
-        <img src="assets/rose-bordeaux.png" alt="" aria-hidden="true">
-        <p>Nous avons hâte de vous retrouver</p>
-        <span>Merveilles <span class="ampersand">&</span> Megan</span>
-        <time datetime="2027-01-16">16 · 01 · 2027</time>
-      </section>
     </main>
 
     <footer class="site-footer">
       <a class="site-footer__brand" href="#accueil">M<span>&</span>M</a>
-      <p>Avec affection, Merveilles & Megan</p>
-      <a href="#accueil" class="back-to-top">Retour en haut ↑</a>
+      <p>À bientôt !</p>
     </footer>
   </body>
 </html>
