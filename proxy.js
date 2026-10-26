@@ -5,6 +5,7 @@ export const config = { runtime: 'nodejs' };
 
 const publicAccessFiles = new Set([
   '/access.html',
+  '/css/base.css',
   '/css/access.css',
   '/js/access.js',
   '/js/supabase-config.js',
