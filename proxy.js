@@ -11,6 +11,8 @@ const publicAccessFiles = new Set([
   '/js/shared/supabase-client.js',
   '/js/shared/invitation-code.js',
   '/assets/site-mark.svg',
+  '/assets/rose-bordeaux.png',
+  '/assets/calanque-en-vau.jpg',
   '/robots.txt',
   '/favicon.ico',
 ]);

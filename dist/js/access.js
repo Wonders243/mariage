@@ -3,6 +3,11 @@ import { normalizeInvitationCode } from './shared/invitation-code.js';
 
 const guestForm = document.querySelector('#guest-access-form');
 const adminForm = document.querySelector('#admin-access-form');
+const adminToggle = document.querySelector('#admin-toggle');
+const adminPanel = document.querySelector('#panel-admin');
+const accessTitle = document.querySelector('#access-title');
+const adminTogglePrompt = document.querySelector('#admin-toggle-prompt');
+const adminToggleAction = document.querySelector('#admin-toggle-action');
 const codeInput = document.querySelector('#invitation-code');
 const guestStatus = document.querySelector('#guest-status');
 const adminStatus = document.querySelector('#admin-status');
@@ -14,27 +19,18 @@ const setStatus = (element, message, isError = false) => {
   element.dataset.error = String(isError);
 };
 
-const tabs = [...document.querySelectorAll('.access-tab')];
-const activateTab = (tab, focus = false) => {
-  tabs.forEach((candidate) => {
-    const active = candidate === tab;
-    candidate.setAttribute('aria-selected', String(active));
-    candidate.tabIndex = active ? 0 : -1;
-    document.getElementById(candidate.getAttribute('aria-controls')).hidden = !active;
-  });
-  if (focus) tab.focus();
+const showAdminPanel = (open, focus = false) => {
+  guestForm.hidden = open;
+  adminPanel.hidden = !open;
+  accessTitle.textContent = open ? 'Connexion à l’administration' : 'Entre ton code';
+  adminToggle.setAttribute('aria-expanded', String(open));
+  adminTogglePrompt.textContent = open ? 'Tu as reçu un faire-part ?' : 'Tu gères le site ?';
+  adminToggleAction.textContent = open ? 'Accéder avec mon code' : 'Connexion à l’administration';
+  if (focus && open) document.querySelector('#admin-email').focus();
 };
 
-tabs.forEach((tab, index) => {
-  tab.addEventListener('click', () => activateTab(tab));
-  tab.addEventListener('keydown', (event) => {
-    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-    event.preventDefault();
-    const next = event.key === 'Home' ? 0
-      : event.key === 'End' ? tabs.length - 1
-        : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
-    activateTab(tabs[next], true);
-  });
+adminToggle?.addEventListener('click', () => {
+  showAdminPanel(adminToggle.getAttribute('aria-expanded') !== 'true');
 });
 
 codeInput?.addEventListener('input', () => {
@@ -101,7 +97,7 @@ adminForm?.addEventListener('submit', async (event) => {
 });
 
 const requestedMode = new URLSearchParams(window.location.search).get('mode');
-if (requestedMode === 'admin') activateTab(document.querySelector('#tab-admin'));
+if (requestedMode === 'admin') showAdminPanel(true, true);
 
 fetch('/api/session', { credentials: 'same-origin', cache: 'no-store' })
   .then((response) => response.json())
