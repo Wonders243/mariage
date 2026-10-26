@@ -16,3 +16,19 @@ document.querySelector('#site-lock')?.addEventListener('click', async (event) =>
 });
 const siteData = await loadSiteContent();
 initRsvp(siteData);
+
+let lastContentRefresh = Date.now();
+let contentRefreshInFlight = false;
+const refreshContentWhenVisible = async () => {
+  if (document.hidden || contentRefreshInFlight || Date.now() - lastContentRefresh < 2500) return;
+  lastContentRefresh = Date.now();
+  contentRefreshInFlight = true;
+  try {
+    await loadSiteContent();
+  } finally {
+    contentRefreshInFlight = false;
+  }
+};
+
+window.addEventListener('pageshow', refreshContentWhenVisible);
+document.addEventListener('visibilitychange', refreshContentWhenVisible);
