@@ -93,20 +93,26 @@ const renderEvents = (events) => {
 };
 
 const renderGallery = (photos) => {
-  const grid = document.querySelector('#gallery-grid');
-  if (!grid || !Array.isArray(photos)) return;
+  const viewport = document.querySelector('#gallery-viewport');
+  const motionToggle = document.querySelector('#gallery-motion-toggle');
+  if (!viewport || !Array.isArray(photos)) return;
 
-  const fragment = document.createDocumentFragment();
-  photos.forEach((photo, index) => {
-    if (!photo || !safeImageUrl(photo.url)) return;
+  const validPhotos = photos.filter((photo) => photo && safeImageUrl(photo.url));
+  const track = document.createElement('div');
+  track.className = 'gallery-track';
+  track.style.setProperty('--gallery-duration', `${Math.max(32, validPhotos.length * 9)}s`);
 
+  const group = document.createElement('div');
+  group.className = 'gallery-track__group';
+  validPhotos.forEach((photo) => {
     const figure = document.createElement('figure');
-    figure.className = `gallery-photo ${index === 0 ? 'gallery-photo--wide' : 'gallery-photo--tall'}`;
+    figure.className = 'gallery-photo';
 
     const image = document.createElement('img');
     image.src = safeImageUrl(photo.url);
     image.alt = textOrEmpty(photo.alt);
     image.loading = 'lazy';
+    image.decoding = 'async';
     figure.append(image);
 
     const caption = textOrEmpty(photo.caption);
@@ -116,10 +122,34 @@ const renderGallery = (photos) => {
       figure.append(figcaption);
     }
 
-    fragment.append(figure);
+    group.append(figure);
   });
 
-  grid.replaceChildren(fragment);
+  track.append(group);
+
+  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const shouldAnimate = validPhotos.length >= 3 && !reducedMotion;
+  if (shouldAnimate) {
+    track.classList.add('gallery-track--animated');
+    const duplicate = group.cloneNode(true);
+    duplicate.setAttribute('aria-hidden', 'true');
+    duplicate.querySelectorAll('img').forEach((image) => { image.alt = ''; });
+    track.append(duplicate);
+  }
+
+  viewport.classList.remove('is-paused');
+  viewport.replaceChildren(track);
+
+  if (motionToggle) {
+    motionToggle.hidden = !shouldAnimate;
+    motionToggle.textContent = 'Mettre en pause';
+    motionToggle.setAttribute('aria-pressed', 'false');
+    motionToggle.onclick = () => {
+      const paused = viewport.classList.toggle('is-paused');
+      motionToggle.textContent = paused ? 'Reprendre' : 'Mettre en pause';
+      motionToggle.setAttribute('aria-pressed', String(paused));
+    };
+  }
 };
 
 export function renderSiteContent(content) {

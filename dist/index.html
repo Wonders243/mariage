@@ -166,11 +166,14 @@
           <p class="eyebrow" data-content="galleryEyebrow">En attendant janvier</p>
           <h2 id="gallery-title" data-content="galleryTitle">Quelques photos de nous</h2>
         </div>
-        <div class="gallery-grid" id="gallery-grid">
-          <figure class="gallery-photo gallery-photo--wide" data-reveal="up">
+        <div class="gallery-controls">
+          <button class="gallery-motion-toggle" id="gallery-motion-toggle" type="button" aria-pressed="false" hidden>Mettre en pause</button>
+        </div>
+        <div class="gallery-viewport" id="gallery-viewport" role="region" aria-label="Galerie de photos">
+          <figure class="gallery-photo" data-reveal="up">
             <img src="assets/couple-variante.jpg" alt="Merveilles et Megan, un moment complice dans la nature" loading="lazy">
           </figure>
-          <figure class="gallery-photo gallery-photo--tall" data-reveal="up">
+          <figure class="gallery-photo" data-reveal="up">
             <img src="assets/couple-fond.png" alt="Merveilles et Megan souriants devant une cascade" loading="lazy">
           </figure>
         </div>
