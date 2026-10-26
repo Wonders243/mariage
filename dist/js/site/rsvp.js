@@ -336,6 +336,11 @@ export async function initRsvp(siteData = null) {
   try {
     supabase = await connectSupabase();
     renderPublicMessages(Array.isArray(siteData?.messages) ? siteData.messages : []);
+    const invitationFromAccess = siteData?.role === "guest"
+      && typeof siteData.code === "string"
+      && Array.isArray(siteData.guests)
+      && siteData.guests.length > 0;
+    lookupForm.hidden = invitationFromAccess;
     showInvitation(siteData);
     if (!siteData) setStatus(lookupStatus, "Les informations de l’invitation ne sont pas disponibles. Recharge la page ou saisis à nouveau ton code.", true);
   } catch {

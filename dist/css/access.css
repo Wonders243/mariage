@@ -1,28 +1,4 @@
-:root {
-  color-scheme: light;
-  --paper: #f7f3eb;
-  --green: #2d4637;
-  --wine: #8b3448;
-  --ink: #28372e;
-  --muted: #74776f;
-  --line: rgba(45, 70, 55, .2);
-  --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
-  --sans: "Aptos", "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
-}
-
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
 html { min-width: 320px; min-height: 100%; }
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--sans);
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-button, input { font: inherit; }
 button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid #b45b6e; outline-offset: 4px; }
 
 .access-page {
@@ -68,7 +44,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   text-decoration: none;
 }
 .access-mark__monogram {
-  color: #f2c1c7;
+  color: var(--rose);
   font: 400 1.3rem var(--serif);
   letter-spacing: -.09em;
 }
@@ -121,13 +97,13 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   color: rgba(255, 255, 255, .82);
   font: italic .98rem/1.7 var(--serif);
 }
-.access-signature span { color: #f2c1c7; }
+.access-signature span { color: var(--rose); }
 
 .access-panel {
   min-width: 0;
   padding: clamp(1.8rem, 4vw, 2.7rem);
   border: 1px solid rgba(45, 70, 55, .1);
-  border-radius: 1.15rem;
+  border-radius: var(--radius);
   background: rgba(255, 254, 250, .8);
   box-shadow: 0 24px 70px rgba(45, 58, 45, .075);
   color: var(--ink);
@@ -150,7 +126,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   min-height: 52px;
   padding: .75rem .85rem;
   border: 1px solid rgba(45, 70, 55, .25);
-  border-radius: .55rem;
+  border-radius: var(--radius-control);
   background: rgba(255, 254, 250, .75);
   color: var(--ink);
   transition: border-color .18s ease, background .18s ease;
@@ -168,7 +144,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   margin-top: .3rem;
   padding: .8rem 1.2rem;
   border: 1px solid var(--wine);
-  border-radius: .55rem;
+  border-radius: var(--radius-control);
   background: var(--wine);
   color: white;
   cursor: pointer;
@@ -180,7 +156,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
 .access-submit:disabled { cursor: wait; opacity: .65; }
 .access-status { min-height: 1.25rem; margin: .1rem 0 0; color: var(--green); font-size: .82rem; line-height: 1.5; }
 .access-status[data-error="true"] { color: var(--wine); }
-.access-admin { margin-top: 2rem; padding-top: 1.15rem; border-top: 1px solid var(--line); }
+.access-admin { margin-top: 2rem; padding-top: 1.15rem; border-top: 1px solid var(--rule); }
 .access-admin__toggle {
   display: grid;
   gap: .25rem;
@@ -235,7 +211,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .access-story h1 { font-size: clamp(3rem, 11vw, 4.4rem); line-height: .98; }
   .access-description { max-width: 31ch; margin: .8rem auto 0; font-size: .92rem; line-height: 1.6; }
   .access-signature { display: none; }
-  .access-panel { width: min(100%, 460px); padding: 1.4rem clamp(1rem, 5vw, 1.5rem); border-radius: 1rem; background: rgba(255, 254, 250, .89); text-align: center; }
+  .access-panel { width: min(100%, 460px); padding: 1.4rem clamp(1rem, 5vw, 1.5rem); border-radius: var(--radius); background: rgba(255, 254, 250, .89); text-align: center; }
   .access-panel__inner { width: 100%; }
   .access-panel h2 { margin-bottom: 1rem; font-size: 2.1rem; }
   #guest-access-form,
@@ -299,7 +275,7 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 3px solid 
   .access-flower { width: 42px; height: 42px; }
   .access-story h1 { font-size: clamp(2.25rem, 9vw, 3rem); line-height: .94; }
   .access-description { margin-top: .5rem; font-size: .85rem; line-height: 1.4; }
-  .access-panel { padding: .95rem 1rem; border-radius: .85rem; }
+  .access-panel { padding: .95rem 1rem; border-radius: var(--radius-control); }
   .access-panel h2 { margin-bottom: .65rem; font-size: 1.75rem; }
   #guest-access-form,
   #admin-access-form { gap: .5rem; }
