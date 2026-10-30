@@ -3,6 +3,7 @@ import { loadSiteContent } from './content.js';
 import { initNavigation } from './navigation.js';
 import { initScrollReveals } from './reveal.js';
 import { initRsvp } from './rsvp.js';
+import { initGifts } from './gifts.js';
 
 initNavigation();
 initScrollReveals();
@@ -16,6 +17,7 @@ document.querySelector('#site-lock')?.addEventListener('click', async (event) =>
 });
 const siteData = await loadSiteContent();
 initRsvp(siteData);
+await initGifts(siteData);
 
 let lastContentRefresh = Date.now();
 let contentRefreshInFlight = false;
@@ -24,7 +26,8 @@ const refreshContentWhenVisible = async () => {
   lastContentRefresh = Date.now();
   contentRefreshInFlight = true;
   try {
-    await loadSiteContent();
+    const data = await loadSiteContent();
+    await initGifts(data);
   } finally {
     contentRefreshInFlight = false;
   }

@@ -7,6 +7,7 @@ import {
   populateEditor
 } from './editor.js';
 import { removeStoredPhotos, uploadPhoto } from './photo-storage.js';
+import { initGiftAdminPanel } from './gifts.js';
 import { createInvitationCode, hashInvitationCode } from '../shared/invitation-code.js';
 
 const setupNotice = document.querySelector('#setup-notice');
@@ -112,6 +113,15 @@ async function showSession(session) {
     await loadContent();
   } catch (error) {
     setStatus(saveStatus, error.message || 'Impossible de charger les informations.', true);
+  }
+  try {
+    await initGiftAdminPanel({
+      supabase,
+      getContent: () => currentContent,
+      setContent: (content) => { currentContent = content; }
+    });
+  } catch (error) {
+    setStatus(document.querySelector('#gift-list-admin-status'), error.message || 'La liste de cadeaux n’a pas pu être ouverte.', true);
   }
   try {
     await loadInvitations();

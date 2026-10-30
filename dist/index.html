@@ -31,6 +31,7 @@
       </button>
       <nav class="main-nav" id="main-nav" aria-label="Navigation principale">
         <a href="#programme">Le programme</a>
+        <a class="nav-gifts" href="#liste-mariage" hidden>Liste de mariage</a>
         <a href="#mots-doux">Vos petits mots</a>
         <a href="#galerie">Quelques photos</a>
         <a class="nav-rsvp" href="#rsvp">Répondre</a>
@@ -93,6 +94,24 @@
           <p class="dress-note__label" data-content="dressLabel">Pour la tenue</p>
           <p data-content="dressNote">Une touche de vert ou de rouge nous ferait plaisir, si vous en avez envie.</p>
         </aside>
+      </section>
+
+      <section class="section gifts-section" id="liste-mariage" hidden aria-labelledby="gifts-title">
+        <div class="section-heading section-heading--center">
+          <p class="eyebrow">Si le cœur vous en dit</p>
+          <h2 id="gifts-title">La liste de mariage</h2>
+          <p>Vous pouvez choisir un cadeau ou participer librement à notre cagnotte. Les cadeaux déjà choisis sont signalés, sans afficher le nom des invités.</p>
+        </div>
+        <div class="gift-fund" id="gift-fund" hidden>
+          <div>
+            <p class="gift-fund__eyebrow">Une autre façon de nous faire plaisir</p>
+            <h3 id="gift-fund-title">La cagnotte</h3>
+            <p id="gift-fund-description"></p>
+          </div>
+          <a class="button button--dark" id="gift-fund-link" href="#" target="_blank" rel="noreferrer">Participer à la cagnotte</a>
+        </div>
+        <p class="gift-list-status" id="gift-list-status" role="status" aria-live="polite"></p>
+        <div class="gift-grid" id="gift-grid"></div>
       </section>
 
       <section class="rsvp-section" id="rsvp" aria-labelledby="rsvp-title">

@@ -61,6 +61,7 @@
           <button class="admin-tab" id="admin-tab-content" type="button" role="tab" aria-selected="true" aria-controls="admin-panel-content" tabindex="0">Le site</button>
           <button class="admin-tab" id="admin-tab-invitations" type="button" role="tab" aria-selected="false" aria-controls="admin-panel-invitations" tabindex="-1">Invitations <span class="admin-tab__count" id="invitation-count">0</span></button>
           <button class="admin-tab" id="admin-tab-messages" type="button" role="tab" aria-selected="false" aria-controls="admin-panel-messages" tabindex="-1">Petits mots <span class="admin-tab__count" id="pending-message-count">0</span></button>
+          <button class="admin-tab" id="admin-tab-gifts" type="button" role="tab" aria-selected="false" aria-controls="admin-panel-gifts" tabindex="-1">Cadeaux <span class="admin-tab__count" id="gift-count">0</span></button>
         </nav>
 
         <section class="admin-panel" id="admin-panel-content" role="tabpanel" aria-labelledby="admin-tab-content">
@@ -175,6 +176,41 @@
             </div>
             <p class="admin-status" id="guest-messages-admin-status" role="status" aria-live="polite"></p>
             <div class="admin-guest-message-list" id="guest-messages-admin-list"></div>
+          </fieldset>
+        </section>
+
+        <section class="admin-panel" id="admin-panel-gifts" role="tabpanel" aria-labelledby="admin-tab-gifts" hidden>
+          <fieldset class="admin-card admin-gift-manager">
+            <legend>Liste de mariage et cagnotte</legend>
+            <p>Les invités verront si un cadeau est déjà choisi, sans voir le nom de la personne. Les réservations ne sont liées à aucun faire-part.</p>
+
+            <form class="admin-gift-fund-form" id="gift-fund-form">
+              <h2>Participation à la cagnotte</h2>
+              <p class="admin-help">Ajoute le lien de votre cagnotte sur une plateforme externe. Le paiement et les coordonnées bancaires restent chez ce prestataire.</p>
+              <div class="admin-fields admin-fields--two">
+                <label class="admin-field"><span>Titre</span><input id="gift-fund-title-input" type="text" maxlength="120" placeholder="La cagnotte"></label>
+                <label class="admin-field admin-field--full"><span>Petit texte</span><textarea id="gift-fund-description-input" rows="2" maxlength="500" placeholder="Une contribution libre pour nos projets à deux."></textarea></label>
+                <label class="admin-field admin-field--full"><span>Lien HTTPS de la cagnotte</span><input id="gift-fund-url-input" type="url" inputmode="url" placeholder="https://…"></label>
+              </div>
+              <div class="admin-gift-fund-actions">
+                <p class="admin-status" id="gift-fund-status" role="status" aria-live="polite"></p>
+                <button class="admin-secondary-button" id="save-gift-fund" type="submit">Enregistrer la cagnotte</button>
+              </div>
+            </form>
+
+            <div class="admin-invitation-list-heading">
+              <h2>Cadeaux à proposer</h2>
+              <button class="admin-quiet-button" id="refresh-gifts" type="button">Actualiser</button>
+            </div>
+            <form class="admin-gift-create" id="gift-create-form">
+              <label class="admin-field"><span>Nom du cadeau</span><input id="gift-title-input" type="text" maxlength="120" required></label>
+              <label class="admin-field"><span>Description</span><textarea id="gift-description-input" rows="3" maxlength="800" placeholder="Quelques précisions pour les invités."></textarea></label>
+              <label class="admin-field"><span>Prix indicatif (facultatif)</span><input id="gift-price-input" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00"></label>
+              <label class="admin-field"><span>Lien du cadeau (facultatif)</span><input id="gift-product-url-input" type="url" inputmode="url" placeholder="https://…"></label>
+              <button class="admin-secondary-button" id="create-gift" type="submit">Ajouter à la liste</button>
+            </form>
+            <p class="admin-status" id="gift-list-admin-status" role="status" aria-live="polite"></p>
+            <div class="admin-gift-list" id="gift-admin-list"></div>
           </fieldset>
         </section>
 

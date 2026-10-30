@@ -131,7 +131,7 @@
   z-index: 25;
   top: .5rem;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: .35rem;
   margin: 0 0 1.1rem;
   padding: .35rem;
@@ -306,6 +306,24 @@
 .admin-edit-guest { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: .7rem; padding: .75rem; border: 1px solid var(--rule); border-radius: .8rem; background: #fbfaf6; }
 .admin-edit-guest .admin-field { width: 100%; }
 .admin-dialog__actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .55rem; padding-top: .4rem; border-top: 1px solid var(--rule); }
+.admin-gift-fund-form { display: grid; gap: .9rem; margin: 1rem 0 1.5rem; padding: 1.1rem; border: 1px solid var(--rule); border-radius: var(--radius-control); background: #fbfaf6; }
+.admin-gift-fund-form h2 { margin: 0; color: var(--green); font: 400 1.45rem var(--serif); }
+.admin-gift-fund-form > p { margin: -.55rem 0 0; }
+.admin-gift-fund-actions { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
+.admin-gift-create { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; gap: .85rem; margin: 1rem 0; padding: 1.1rem; border: 1px solid var(--rule); border-radius: var(--radius-control); background: #fbfaf6; }
+.admin-gift-create .admin-secondary-button { min-height: 46px; justify-self: start; }
+.admin-gift-list { display: grid; gap: .8rem; margin-top: .8rem; }
+.admin-gift { display: grid; gap: .9rem; padding: 1rem; border: 1px solid var(--rule); border-radius: var(--radius-control); background: #fbfaf6; }
+.admin-gift__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.admin-gift__heading h3 { margin: 0; color: var(--green); font: 400 1.2rem var(--serif); }
+.admin-gift__status { margin: .2rem 0 0; color: var(--muted); font-size: .72rem; }
+.admin-gift__status.is-reserved { color: var(--wine); font-weight: 650; }
+.admin-gift__active { display: flex; align-items: center; gap: .45rem; color: var(--green); font-size: .75rem; cursor: pointer; }
+.admin-gift__active input { accent-color: var(--green); }
+.admin-gift__fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .8rem; }
+.admin-gift__fields .admin-field--full { grid-column: 1 / -1; }
+.admin-gift__actions { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; }
+.admin-gift__delete { color: var(--wine); }
 
 @media (max-width: 620px) {
   .admin-header { padding-inline: 1rem; }
@@ -317,6 +335,10 @@
   .admin-photo-card { grid-template-columns: 82px 1fr; }
   .admin-photo-card__remove { grid-column: 2; justify-self: start; }
   .admin-account { align-items: flex-start; }
+  .admin-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-gift-fund-actions { align-items: stretch; flex-direction: column; }
+  .admin-gift-create, .admin-gift__fields { grid-template-columns: 1fr; }
+  .admin-gift__fields .admin-field--full { grid-column: auto; }
   .admin-tab { gap: .3rem; min-height: 44px; padding: .45rem .35rem; font-size: .72rem; }
   .admin-tab__count { min-width: 1.2rem; height: 1.2rem; font-size: .62rem; }
   .admin-section-nav { top: 4rem; }

@@ -21,10 +21,10 @@ create policy "Wedding admin manages invitations"
   for all
   to authenticated
   using (
-    lower(coalesce(auth.jwt() ->> 'email', '')) = lower('YOUR_ADMIN_EMAIL')
+    lower(coalesce(auth.jwt() ->> 'email', '')) = lower('merveilleskatabisomwe@gmail.com')
   )
   with check (
-    lower(coalesce(auth.jwt() ->> 'email', '')) = lower('YOUR_ADMIN_EMAIL')
+    lower(coalesce(auth.jwt() ->> 'email', '')) = lower('merveilleskatabisomwe@gmail.com')
   );
 
 create table if not exists public.wedding_rsvp_messages (
@@ -54,10 +54,10 @@ create policy "Wedding admin moderates guest messages"
   for all
   to authenticated
   using (
-    lower(coalesce(auth.jwt() ->> 'email', '')) = lower('YOUR_ADMIN_EMAIL')
+    lower(coalesce(auth.jwt() ->> 'email', '')) = lower('merveilleskatabisomwe@gmail.com')
   )
   with check (
-    lower(coalesce(auth.jwt() ->> 'email', '')) = lower('YOUR_ADMIN_EMAIL')
+    lower(coalesce(auth.jwt() ->> 'email', '')) = lower('merveilleskatabisomwe@gmail.com')
   );
 
 -- Retire les anciens champs Mariages.net qui ne sont plus utilisés.

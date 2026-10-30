@@ -8,6 +8,8 @@ const corsHeaders = {
 };
 
 const codePattern = /^[0-9A-HJKMNP-TV-Z]{12}$/;
+const giftIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const reservationTokenPattern = /^[0-9a-f]{64}$/;
 
 function json(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -38,6 +40,63 @@ async function sha256(value: string) {
 
 function cleanCode(value: unknown) {
   return String(value ?? "").toUpperCase().replace(/[\s-]/g, "");
+}
+
+function safeExternalUrl(value: unknown) {
+  const raw = typeof value === "string" ? value.trim() : "";
+  if (!raw) return "";
+  try {
+    const url = new URL(raw);
+    return url.protocol === "https:" ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
+function isMissingGiftTable(error: { code?: string } | null) {
+  return error?.code === "42P01" || error?.code === "PGRST205";
+}
+
+async function getPublicGifts(client: NonNullable<ReturnType<typeof getDatabaseClient>>) {
+  const { data: gifts, error: giftsError } = await client
+    .from("wedding_gifts")
+    .select("id, title, description, price_cents, product_url, sort_order, created_at")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (giftsError) {
+    if (isMissingGiftTable(giftsError)) return { available: false, gifts: [] };
+    throw giftsError;
+  }
+
+  const { data: reservations, error: reservationsError } = await client
+    .from("wedding_gift_reservations")
+    .select("gift_id");
+
+  if (reservationsError) {
+    if (isMissingGiftTable(reservationsError)) return { available: false, gifts: [] };
+    throw reservationsError;
+  }
+
+  const reservedGiftIds = new Set((reservations || []).map((reservation) => reservation.gift_id));
+  return {
+    available: true,
+    gifts: (gifts || []).map((gift) => ({
+      id: gift.id,
+      title: gift.title,
+      description: gift.description || "",
+      price_cents: Number.isInteger(gift.price_cents) ? gift.price_cents : null,
+      product_url: safeExternalUrl(gift.product_url),
+      reserved: reservedGiftIds.has(gift.id),
+    })),
+  };
+}
+
+function createReservationToken() {
+  return Array.from(crypto.getRandomValues(new Uint8Array(32)))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 function getParisDate() {
@@ -152,7 +211,7 @@ Deno.serve(async (request: Request) => {
 
   try {
     const body = await request.json().catch(() => null);
-    if (!body || !["lookup", "submit", "submit_message", "list_messages", "site_data"].includes(body.action)) {
+    if (!body || !["lookup", "submit", "submit_message", "list_messages", "site_data", "reserve_gift", "cancel_gift"].includes(body.action)) {
       return json({ ok: false, error: "invalid_request" }, 400);
     }
 
@@ -188,6 +247,7 @@ Deno.serve(async (request: Request) => {
     }
 
     if (body.action === "site_data") {
+      const giftList = await getPublicGifts(client);
       return json({
         ok: true,
         guests,
@@ -195,7 +255,62 @@ Deno.serve(async (request: Request) => {
         closed,
         content: await getSiteContent(client),
         messages: await getApprovedMessages(client),
+        giftsAvailable: giftList.available,
+        gifts: giftList.gifts,
       });
+    }
+
+    if (body.action === "reserve_gift") {
+      const giftId = typeof body.giftId === "string" ? body.giftId : "";
+      if (!giftIdPattern.test(giftId)) return json({ ok: false, error: "invalid_gift" });
+
+      const { data: gift, error: giftError } = await client
+        .from("wedding_gifts")
+        .select("id")
+        .eq("id", giftId)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (giftError) {
+        if (isMissingGiftTable(giftError)) return json({ ok: false, error: "gift_list_not_ready" });
+        throw giftError;
+      }
+      if (!gift) return json({ ok: false, error: "gift_unavailable" });
+
+      const reservationToken = createReservationToken();
+      const { error: reservationError } = await client
+        .from("wedding_gift_reservations")
+        .insert({ gift_id: giftId, reservation_token_hash: await sha256(reservationToken) });
+
+      if (reservationError?.code === "23505") return json({ ok: false, error: "gift_already_reserved" });
+      if (reservationError) {
+        if (isMissingGiftTable(reservationError)) return json({ ok: false, error: "gift_list_not_ready" });
+        throw reservationError;
+      }
+
+      return json({ ok: true, reservationToken });
+    }
+
+    if (body.action === "cancel_gift") {
+      const giftId = typeof body.giftId === "string" ? body.giftId : "";
+      const reservationToken = typeof body.reservationToken === "string" ? body.reservationToken : "";
+      if (!giftIdPattern.test(giftId) || !reservationTokenPattern.test(reservationToken)) {
+        return json({ ok: false, error: "invalid_reservation" });
+      }
+
+      const { data: removed, error: reservationError } = await client
+        .from("wedding_gift_reservations")
+        .delete()
+        .eq("gift_id", giftId)
+        .eq("reservation_token_hash", await sha256(reservationToken))
+        .select("gift_id")
+        .maybeSingle();
+
+      if (reservationError) {
+        if (isMissingGiftTable(reservationError)) return json({ ok: false, error: "gift_list_not_ready" });
+        throw reservationError;
+      }
+      if (!removed) return json({ ok: false, error: "reservation_not_found" });
+      return json({ ok: true });
     }
 
     if (body.action === "lookup") {

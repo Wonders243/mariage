@@ -12,6 +12,7 @@ Site en français, responsive, hébergé comme site statique sur Vercel. Les inf
 - `supabase/setup.sql` prépare le contenu, les règles d’accès et le stockage photo.
 - `supabase/access-gate-setup.sql` rend privés le contenu et les photos déjà en place.
 - `supabase/rsvp-setup.sql` ajoute les invitations privées, les réponses de présence et les petits mots modérés.
+- `supabase/wedding-gifts-setup.sql` ajoute les cadeaux réservables et leurs statuts anonymes.
 - `supabase/functions/wedding-rsvp/` contient la fonction serveur qui vérifie les codes et enregistre les réponses.
 - `api/`, `lib/site-access.js` et `proxy.js` protègent le site avec une session serveur signée.
 
@@ -62,6 +63,14 @@ Le projet sert désormais les endpoints `/api/access`, `/api/session`, `/api/sit
 5. Avec le même code, chaque personne invitée peut envoyer un petit mot sans avoir répondu au RSVP. Elle choisit si son prénom apparaît sur le site ou si le message est affiché comme anonyme. Le prénom reste visible dans l’administration pour la modération. Le message reste privé jusqu’à sa publication dans `/admin.html` ; seuls les messages publiés apparaissent sur le site. Un seul message est conservé par personne et par faire-part : un nouvel envoi remplace le précédent et repasse en attente de validation.
 
 Les codes comportent 12 caractères aléatoires. La table des invités n’est jamais lisible depuis le site public ; les demandes passent par la fonction Supabase, avec une limite d’essais.
+
+## Liste de mariage et cagnotte
+
+1. Dans `supabase/wedding-gifts-setup.sql`, remplace `YOUR_ADMIN_EMAIL` par la même adresse que dans les autres règles SQL, puis exécute le fichier dans **Supabase > SQL Editor**.
+2. Déploie la fonction mise à jour après la migration : `supabase functions deploy wedding-rsvp`.
+3. Dans `/admin.html`, ouvre l’onglet **Cadeaux** pour ajouter, modifier, masquer ou supprimer les cadeaux et renseigner le lien HTTPS de votre cagnotte.
+4. Les invités peuvent réserver chaque cadeau une seule fois. La base ne lie pas la réservation à un faire-part ni à un nom ; le site affiche seulement si le cadeau est disponible ou choisi. L’administration peut libérer un cadeau sans connaître la personne qui l’avait réservé.
+5. La cagnotte utilise une plateforme externe. Le site affiche son lien, mais ne collecte pas les paiements ni les coordonnées bancaires.
 
 ## Modifier le contenu
 

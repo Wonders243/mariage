@@ -12,7 +12,20 @@ create policy "Only the site admin can read wedding content"
   to authenticated
   using (
     id = 'main'
-    and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('YOUR_ADMIN_EMAIL')
+    and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('merveilleskatabisomwe@gmail.com')
+  );
+
+drop policy if exists "Only the site admin can update wedding content" on public.wedding_site_content;
+create policy "Only the site admin can update wedding content"
+  on public.wedding_site_content for update
+  to authenticated
+  using (
+    id = 'main'
+    and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('merveilleskatabisomwe@gmail.com')
+  )
+  with check (
+    id = 'main'
+    and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('merveilleskatabisomwe@gmail.com')
   );
 
 update storage.buckets
@@ -26,5 +39,37 @@ create policy "Only the site admin can read wedding photos"
   to authenticated
   using (
     bucket_id = 'wedding-photos'
-    and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('YOUR_ADMIN_EMAIL')
+    and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('merveilleskatabisomwe@gmail.com')
+  );
+
+-- Autorise l’administration à ajouter, remplacer et retirer les photos du site.
+drop policy if exists "Only the site admin can upload wedding photos" on storage.objects;
+create policy "Only the site admin can upload wedding photos"
+  on storage.objects for insert
+  to authenticated
+  with check (
+    bucket_id = 'wedding-photos'
+    and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('merveilleskatabisomwe@gmail.com')
+  );
+
+drop policy if exists "Only the site admin can update wedding photos" on storage.objects;
+create policy "Only the site admin can update wedding photos"
+  on storage.objects for update
+  to authenticated
+  using (
+    bucket_id = 'wedding-photos'
+    and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('merveilleskatabisomwe@gmail.com')
+  )
+  with check (
+    bucket_id = 'wedding-photos'
+    and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('merveilleskatabisomwe@gmail.com')
+  );
+
+drop policy if exists "Only the site admin can delete wedding photos" on storage.objects;
+create policy "Only the site admin can delete wedding photos"
+  on storage.objects for delete
+  to authenticated
+  using (
+    bucket_id = 'wedding-photos'
+    and lower(coalesce(auth.jwt() ->> 'email', '')) = lower('merveilleskatabisomwe@gmail.com')
   );
