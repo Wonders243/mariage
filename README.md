@@ -74,7 +74,7 @@ Les nouveaux codes comportent 9 caractères aléatoires ; les codes de 12 caract
 
 ## Modifier le contenu
 
-Ouvrir `/admin.html`, se connecter, modifier les champs, puis choisir **Enregistrer les changements**. Les invités verront la nouvelle version au prochain chargement du site. Les photos se téléversent dans Supabase Storage ; les fichiers JPG, PNG, WebP et GIF jusqu’à 8 Mo sont acceptés.
+Ouvrir `/admin.html`, se connecter, modifier les champs, puis choisir **Enregistrer les changements**. Les invités verront la nouvelle version au prochain chargement du site. Les photos se téléversent dans Supabase Storage ; les fichiers JPG, PNG, WebP et GIF jusqu’à 8 Mo sont acceptés. Les fichiers JPG et PNG sont automatiquement réduits à 1 920 px maximum et convertis en WebP lorsqu’il en résulte un fichier plus léger. Les fichiers WebP sont conservés tels quels et les GIF gardent leur animation.
 
 ## Prévisualiser en local
 
