@@ -33,7 +33,7 @@ export default async function handler(request, response) {
   try {
     if (body.mode === 'guest') {
       const code = normalizeInvitationCode(body.code);
-      if (!/^[0-9A-HJKMNP-TV-Z]{12}$/.test(code)) {
+      if (!/^(?:[0-9A-HJKMNP-TV-Z]{9}|[0-9A-HJKMNP-TV-Z]{12})$/.test(code)) {
         return fail(response, 401, 'Ce code ne correspond pas à une invitation. Vérifie le code imprimé sur le faire-part.');
       }
 

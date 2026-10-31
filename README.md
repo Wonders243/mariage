@@ -62,7 +62,7 @@ Le projet sert désormais les endpoints `/api/access`, `/api/session`, `/api/sit
 4. Les invités saisissent ce code sur le site, répondent pour chaque personne du faire-part, et peuvent corriger leur réponse avant la date limite configurée. L’administration affiche les réponses et permet leur export CSV.
 5. Avec le même code, chaque personne invitée peut envoyer un petit mot sans avoir répondu au RSVP. Elle choisit si son prénom apparaît sur le site ou si le message est affiché comme anonyme. Le prénom reste visible dans l’administration pour la modération. Le message reste privé jusqu’à sa publication dans `/admin.html` ; seuls les messages publiés apparaissent sur le site. Un seul message est conservé par personne et par faire-part : un nouvel envoi remplace le précédent et repasse en attente de validation.
 
-Les codes comportent 12 caractères aléatoires. La table des invités n’est jamais lisible depuis le site public ; les demandes passent par la fonction Supabase, avec une limite d’essais.
+Les nouveaux codes comportent 9 caractères aléatoires ; les codes de 12 caractères déjà créés restent valides. La table des invités n’est jamais lisible depuis le site public ; les demandes passent par la fonction Supabase, avec une limite d’essais.
 
 ## Liste de mariage et cagnotte
 

@@ -37,7 +37,8 @@ codeInput?.addEventListener('input', () => {
   const cleaned = normalizeInvitationCode(codeInput.value)
     .replace(/[^0-9A-HJKMNP-TV-Z]/g, '')
     .slice(0, 12);
-  codeInput.value = cleaned.match(/.{1,4}/g)?.join('-') || '';
+  const groupSize = cleaned.length > 9 ? 4 : 3;
+  codeInput.value = cleaned.match(new RegExp(`.{1,${groupSize}}`, 'g'))?.join('-') || '';
 });
 
 guestForm?.addEventListener('submit', async (event) => {

@@ -7,7 +7,7 @@ const corsHeaders = {
   "Vary": "Origin",
 };
 
-const codePattern = /^[0-9A-HJKMNP-TV-Z]{12}$/;
+const codePattern = /^(?:[0-9A-HJKMNP-TV-Z]{9}|[0-9A-HJKMNP-TV-Z]{12})$/;
 const giftIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const reservationTokenPattern = /^[0-9a-f]{64}$/;
 

@@ -213,7 +213,8 @@ const renderPublicMessages = (messages) => {
 const showInvitation = (data) => {
   if (!data?.guests?.length) return;
   activeCode = normalizeInvitationCode(data.code || "");
-  codeInput.value = activeCode.match(/.{1,4}/g)?.join("-") || "";
+  const groupSize = activeCode.length === 9 ? 3 : 4;
+  codeInput.value = activeCode.match(new RegExp(`.{1,${groupSize}}`, "g"))?.join("-") || "";
   renderGuests(data.guests);
   responsePanel.hidden = false;
   setStatus(lookupStatus, "");
@@ -318,7 +319,8 @@ codeInput?.addEventListener("input", () => {
   const code = normalizeInvitationCode(codeInput.value)
     .replace(/[^0-9A-HJKMNP-TV-Z]/g, "")
     .slice(0, 12);
-  codeInput.value = code.match(/.{1,4}/g)?.join("-") || "";
+  const groupSize = code.length > 9 ? 4 : 3;
+  codeInput.value = code.match(new RegExp(`.{1,${groupSize}}`, "g"))?.join("-") || "";
   if (activeCode && code !== activeCode) {
     activeCode = "";
     responsePanel.hidden = true;
