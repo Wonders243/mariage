@@ -61,18 +61,7 @@ values (
     "rsvpDeadline": "2026-12-16",
     "galleryEyebrow": "En attendant janvier",
     "galleryTitle": "Quelques photos de nous",
-    "galleryImages": [
-      {
-        "url": "assets/couple-variante.jpg",
-        "alt": "Merveilles et Megan, un moment complice dans la nature",
-        "caption": ""
-      },
-      {
-        "url": "assets/couple-fond.png",
-        "alt": "Merveilles et Megan souriants devant une cascade",
-        "caption": ""
-      }
-    ]
+    "galleryImages": []
   }'::jsonb
 )
 on conflict (id) do nothing;

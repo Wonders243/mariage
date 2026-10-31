@@ -33,7 +33,7 @@
         <a href="#programme">Le programme</a>
         <a class="nav-gifts" href="#liste-mariage" hidden>Liste de mariage</a>
         <a href="#mots-doux">Vos petits mots</a>
-        <a href="#galerie">Quelques photos</a>
+        <a class="nav-gallery" href="#galerie" hidden>Quelques photos</a>
         <a class="nav-rsvp" href="#rsvp">Répondre</a>
         <button class="nav-lock" id="site-lock" type="button">Verrouiller le site</button>
       </nav>
@@ -180,7 +180,7 @@
         </div>
       </section>
 
-      <section class="section gallery-section" id="galerie" aria-labelledby="gallery-title">
+      <section class="section gallery-section" id="galerie" aria-labelledby="gallery-title" hidden>
         <div class="section-heading section-heading--center" data-reveal="up">
           <p class="eyebrow" data-content="galleryEyebrow">En attendant janvier</p>
           <h2 id="gallery-title" data-content="galleryTitle">Quelques photos de nous</h2>
@@ -188,14 +188,7 @@
         <div class="gallery-controls">
           <button class="gallery-motion-toggle" id="gallery-motion-toggle" type="button" aria-pressed="false" hidden>Mettre en pause</button>
         </div>
-        <div class="gallery-viewport" id="gallery-viewport" role="region" aria-label="Galerie de photos">
-          <figure class="gallery-photo" data-reveal="up">
-            <img src="assets/couple-variante.jpg" alt="Merveilles et Megan, un moment complice dans la nature" loading="lazy">
-          </figure>
-          <figure class="gallery-photo" data-reveal="up">
-            <img src="assets/couple-fond.png" alt="Merveilles et Megan souriants devant une cascade" loading="lazy">
-          </figure>
-        </div>
+        <div class="gallery-viewport" id="gallery-viewport" role="region" aria-label="Galerie de photos"></div>
       </section>
 
     </main>

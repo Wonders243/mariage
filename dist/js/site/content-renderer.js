@@ -95,9 +95,19 @@ const renderEvents = (events) => {
 const renderGallery = (photos) => {
   const viewport = document.querySelector('#gallery-viewport');
   const motionToggle = document.querySelector('#gallery-motion-toggle');
-  if (!viewport || !Array.isArray(photos)) return;
+  const gallerySection = document.querySelector('.gallery-section');
+  const galleryLink = document.querySelector('.nav-gallery');
+  if (!viewport) return;
 
-  const validPhotos = photos.filter((photo) => photo && safeImageUrl(photo.url));
+  const validPhotos = Array.isArray(photos) ? photos.filter((photo) => photo && safeImageUrl(photo.url)) : [];
+  const hasPhotos = validPhotos.length > 0;
+  if (gallerySection) gallerySection.hidden = !hasPhotos;
+  if (galleryLink) galleryLink.hidden = !hasPhotos;
+  if (!Array.isArray(photos)) {
+    viewport.replaceChildren();
+    if (motionToggle) motionToggle.hidden = true;
+    return;
+  }
   const track = document.createElement('div');
   track.className = 'gallery-track';
   track.style.setProperty('--gallery-duration', `${Math.max(32, validPhotos.length * 9)}s`);
