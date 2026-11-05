@@ -5,13 +5,14 @@ const section = document.querySelector('#liste-mariage');
 const navigationLink = document.querySelector('.nav-gifts');
 const giftGrid = document.querySelector('#gift-grid');
 const giftStatus = document.querySelector('#gift-list-status');
+const giftHint = document.querySelector('#gift-list-hint');
 const fundPanel = document.querySelector('#gift-fund');
 const fundTitle = document.querySelector('#gift-fund-title');
 const fundDescription = document.querySelector('#gift-fund-description');
 const fundLink = document.querySelector('#gift-fund-link');
 
 const reservationStoragePrefix = 'wedding-gift-reservation:';
-const state = { supabase: null, code: '', codeHash: '', gifts: [] };
+const state = { supabase: null, code: '', codeHash: '', gifts: [], openGiftIds: new Set() };
 
 const text = (value) => typeof value === 'string' ? value.trim() : '';
 const setStatus = (message, isError = false) => {
@@ -68,36 +69,48 @@ function formatPrice(priceCents) {
 
 function renderGifts() {
   if (!giftGrid) return;
+  if (giftHint) giftHint.hidden = !state.gifts.length;
+  const openGiftIds = new Set(state.openGiftIds);
+  giftGrid.querySelectorAll('.gift-card[open]').forEach((card) => openGiftIds.add(card.dataset.giftId));
   const fragment = document.createDocumentFragment();
 
   state.gifts.forEach((gift) => {
-    const article = document.createElement('article');
+    const article = document.createElement('details');
     article.className = 'gift-card';
+    article.dataset.giftId = String(gift.id);
+    article.open = openGiftIds.has(String(gift.id));
+    article.addEventListener('toggle', () => {
+      if (article.open) state.openGiftIds.add(article.dataset.giftId);
+      else state.openGiftIds.delete(article.dataset.giftId);
+    });
 
-    const top = document.createElement('div');
-    top.className = 'gift-card__top';
+    const summary = document.createElement('summary');
+    summary.className = 'gift-card__summary';
     const title = document.createElement('h3');
     title.textContent = text(gift.title) || 'Cadeau';
     const badge = document.createElement('span');
     badge.className = 'gift-card__status' + (gift.reserved ? ' is-reserved' : '');
     badge.textContent = gift.reserved ? 'Déjà choisi' : 'Disponible';
-    top.append(title, badge);
-    article.append(top);
+    summary.append(title, badge);
+
+    const price = formatPrice(gift.price_cents);
+    if (price) {
+      const priceElement = document.createElement('span');
+      priceElement.className = 'gift-card__price';
+      priceElement.textContent = price;
+      summary.append(priceElement);
+    }
+    article.append(summary);
+
+    const details = document.createElement('div');
+    details.className = 'gift-card__details';
 
     const description = text(gift.description);
     if (description) {
       const paragraph = document.createElement('p');
       paragraph.className = 'gift-card__description';
       paragraph.textContent = description;
-      article.append(paragraph);
-    }
-
-    const price = formatPrice(gift.price_cents);
-    if (price) {
-      const priceElement = document.createElement('p');
-      priceElement.className = 'gift-card__price';
-      priceElement.textContent = price;
-      article.append(priceElement);
+      details.append(paragraph);
     }
 
     const actions = document.createElement('div');
@@ -158,10 +171,12 @@ function renderGifts() {
       actions.append(reserve);
     }
 
-    article.append(actions);
+    details.append(actions);
+    article.append(details);
     fragment.append(article);
   });
 
+  state.openGiftIds = openGiftIds;
   giftGrid.replaceChildren(fragment);
 }
 
