@@ -14,6 +14,7 @@
   background: rgba(250, 249, 245, .84);
   backdrop-filter: blur(14px);
 }
+.admin-header__links { display: flex; align-items: center; gap: .55rem; }
 .admin-header__site-link {
   padding: .65rem .95rem;
   border: 1px solid rgba(139, 52, 72, .3);
@@ -328,6 +329,8 @@
 @media (max-width: 620px) {
   .admin-header { padding-inline: 1rem; }
   .admin-header .wordmark__label { display: none; }
+  .admin-header__links { gap: .35rem; }
+  .admin-header__site-link { padding: .52rem .55rem; font-size: .68rem; }
   .admin-fields--two, .admin-repeat-item__fields { grid-template-columns: 1fr; }
   .admin-repeat-item__fields .admin-field--full { grid-column: auto; }
   .admin-photo-feature { grid-template-columns: 1fr; }

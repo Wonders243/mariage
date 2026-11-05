@@ -3,7 +3,6 @@ import { loadSiteContent } from './content.js';
 import { initNavigation } from './navigation.js';
 import { initScrollReveals } from './reveal.js';
 import { initRsvp } from './rsvp.js';
-import { initGifts } from './gifts.js';
 
 initNavigation();
 initScrollReveals();
@@ -17,7 +16,11 @@ document.querySelector('#site-lock')?.addEventListener('click', async (event) =>
 });
 const siteData = await loadSiteContent();
 initRsvp(siteData);
-await initGifts(siteData);
+const updateGiftLink = (data) => {
+  const link = document.querySelector('.nav-gifts');
+  if (link) link.hidden = !['guest', 'admin'].includes(data?.role);
+};
+updateGiftLink(siteData);
 
 let lastContentRefresh = Date.now();
 let contentRefreshInFlight = false;
@@ -27,7 +30,7 @@ const refreshContentWhenVisible = async () => {
   contentRefreshInFlight = true;
   try {
     const data = await loadSiteContent();
-    await initGifts(data);
+    updateGiftLink(data);
   } finally {
     contentRefreshInFlight = false;
   }

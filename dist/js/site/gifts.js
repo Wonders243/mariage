@@ -27,7 +27,7 @@ const fundLink = document.querySelector('#gift-fund-link');
 const reservationStoragePrefix = 'wedding-gift-reservation:';
 const giftsPerPage = 10;
 const defaultDocumentTitle = document.title;
-const state = { supabase: null, code: '', codeHash: '', gifts: [], listPage: 1, focusGiftId: '', navigationReady: false };
+const state = { supabase: null, role: '', code: '', codeHash: '', gifts: [], listPage: 1, focusGiftId: '', navigationReady: false };
 
 const text = (value) => typeof value === 'string' ? value.trim() : '';
 const setStatus = (message, isError = false) => {
@@ -98,6 +98,8 @@ function createGiftActions(gift) {
     actions.append(productLink);
   }
 
+  if (state.role === 'admin') return actions;
+
   const token = readReservationToken(gift.id);
   if (gift.reserved) {
     if (token) {
@@ -148,7 +150,12 @@ function createGiftActions(gift) {
 
 function renderGiftList() {
   if (!giftGrid) return;
-  if (giftHint) giftHint.hidden = !state.gifts.length;
+  if (giftHint) {
+    giftHint.hidden = !state.gifts.length;
+    giftHint.textContent = state.role === 'admin'
+      ? 'Aperçu administrateur : les réservations restent anonymes.'
+      : 'Ouvrez un cadeau pour voir sa fiche et le choisir.';
+  }
   const pageCount = Math.max(1, Math.ceil(state.gifts.length / giftsPerPage));
   state.listPage = Math.min(Math.max(1, state.listPage), pageCount);
   const firstGiftIndex = (state.listPage - 1) * giftsPerPage;
@@ -301,8 +308,15 @@ function initializeGiftNavigation() {
 }
 
 async function refreshGiftList() {
-  if (!state.supabase || !state.code) return;
+  if (!state.supabase) return;
   try {
+    if (state.role === 'admin') {
+      state.gifts = await loadAdminGiftList();
+      renderCurrentGiftView();
+      if (!state.gifts.length) setStatus('La liste de cadeaux sera bientôt disponible.');
+      return;
+    }
+    if (!state.code) return;
     const data = await callGiftAction({ action: 'site_data', code: state.code });
     state.gifts = Array.isArray(data.gifts) ? data.gifts : [];
     renderCurrentGiftView();
@@ -313,13 +327,38 @@ async function refreshGiftList() {
   }
 }
 
+async function loadAdminGiftList() {
+  const { data: gifts, error: giftsError } = await state.supabase
+    .from('wedding_gifts')
+    .select('id,title,description,price_cents,product_url,sort_order,created_at')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true });
+  if (giftsError) throw giftsError;
+
+  const giftIds = (gifts || []).map((gift) => gift.id);
+  if (!giftIds.length) return [];
+
+  const { data: reservations, error: reservationsError } = await state.supabase
+    .from('wedding_gift_reservations')
+    .select('gift_id')
+    .in('gift_id', giftIds);
+  if (reservationsError) throw reservationsError;
+
+  const reservedGiftIds = new Set((reservations || []).map((reservation) => reservation.gift_id));
+  return gifts.map((gift) => ({ ...gift, reserved: reservedGiftIds.has(gift.id) }));
+}
+
 export async function initGifts(siteData) {
   if (!section || !navigationLink) return;
   const isGuest = siteData?.role === 'guest' && typeof siteData.code === 'string';
-  section.hidden = !isGuest;
-  navigationLink.hidden = !isGuest;
-  if (!isGuest) return;
+  const isAdmin = siteData?.role === 'admin';
+  const canViewGifts = isGuest || isAdmin;
+  section.hidden = !canViewGifts;
+  navigationLink.hidden = !canViewGifts;
+  if (!canViewGifts) return;
   initializeGiftNavigation();
+  state.role = siteData.role;
 
   const fundUrl = safeHttpsUrl(siteData.content?.giftFundUrl);
   if (fundUrl && fundPanel && fundLink) {
@@ -338,12 +377,25 @@ export async function initGifts(siteData) {
 
   try {
     state.supabase = await connectSupabase();
-    state.code = siteData.code;
-    state.codeHash = await hashInvitationCode(state.code);
-    state.gifts = Array.isArray(siteData.gifts) ? siteData.gifts : [];
+    if (!state.supabase) throw new Error('La connexion Supabase n’est pas configurée.');
+    if (isAdmin) {
+      state.code = '';
+      state.codeHash = '';
+      state.gifts = await loadAdminGiftList();
+    } else {
+      state.code = siteData.code;
+      state.codeHash = await hashInvitationCode(state.code);
+      state.gifts = Array.isArray(siteData.gifts) ? siteData.gifts : [];
+    }
     renderCurrentGiftView({ focus: true });
-    if (!siteData.giftsAvailable || !state.gifts.length) setStatus('La liste de cadeaux sera bientôt disponible.');
-    else setStatus('Chaque cadeau ne peut être choisi qu’une fois. Les choix restent anonymes.');
+    if (isAdmin) {
+      if (!state.gifts.length) setStatus('La liste de cadeaux sera bientôt disponible.');
+      else setStatus('Aperçu administrateur. Les réservations restent anonymes.');
+    } else if (!siteData.giftsAvailable || !state.gifts.length) {
+      setStatus('La liste de cadeaux sera bientôt disponible.');
+    } else {
+      setStatus('Chaque cadeau ne peut être choisi qu’une fois. Les choix restent anonymes.');
+    }
   } catch {
     setStatus('La liste de cadeaux n’est pas disponible pour le moment.', true);
   }

@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f2e9">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="La liste de cadeaux et la cagnotte de Merveilles et Megan.">
+    <title>Cadeaux et cagnotte — Merveilles & Megan</title>
+    <link rel="icon" href="assets/site-mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/site.css">
+    <link rel="stylesheet" href="css/interactions.css">
+    <script src="js/supabase-config.js"></script>
+    <script type="module" src="js/site/gifts-page.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+
+    <header class="site-header">
+      <a class="wordmark" href="index.html" aria-label="Merveilles et Megan, retour au site">
+        <span class="wordmark__monogram">M<span>&amp;</span>M</span>
+        <span class="wordmark__label">Merveilles &amp; Megan</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-controls="main-nav" aria-expanded="false" aria-label="Ouvrir le menu">
+        <span class="nav-toggle__icon" aria-hidden="true"><i></i><i></i></span>
+        <span class="nav-toggle__label">Menu</span>
+      </button>
+      <nav class="main-nav" id="main-nav" aria-label="Navigation principale">
+        <a href="index.html#programme">Le programme</a>
+        <a class="nav-gifts" href="cadeaux.html" aria-current="page" hidden>Cadeaux et cagnotte</a>
+        <a class="nav-rsvp" href="index.html#rsvp">Répondre</a>
+        <a id="gifts-admin-link" href="admin.html" hidden>Espace admin</a>
+        <button class="nav-lock" id="site-lock" type="button">Verrouiller le site</button>
+      </nav>
+    </header>
+
+    <main id="contenu">
+      <section class="section gifts-section" id="liste-mariage" hidden aria-labelledby="gifts-title">
+        <div class="gift-browser" id="gift-browser">
+          <div class="section-heading section-heading--center">
+            <p class="eyebrow">Si le cœur vous en dit</p>
+            <h1 class="gift-page-title" id="gifts-title">Cadeaux et cagnotte</h1>
+            <p>Vous pouvez choisir un cadeau ou participer librement à notre cagnotte. Les cadeaux déjà choisis sont signalés, sans afficher le nom des invités.</p>
+          </div>
+          <div class="gift-fund" id="gift-fund" hidden>
+            <div>
+              <p class="gift-fund__eyebrow">Une autre façon de nous faire plaisir</p>
+              <h2 id="gift-fund-title">La cagnotte</h2>
+              <p id="gift-fund-description"></p>
+            </div>
+            <a class="button button--dark" id="gift-fund-link" href="#" target="_blank" rel="noreferrer">Participer à la cagnotte</a>
+          </div>
+          <p class="gift-list-status" id="gift-list-status" role="status" aria-live="polite"></p>
+          <p class="gift-list-hint" id="gift-list-hint" hidden>Ouvrez un cadeau pour voir sa fiche et le choisir.</p>
+          <div class="gift-grid" id="gift-grid"></div>
+          <nav class="gift-pagination" id="gift-pagination" aria-label="Pages de la liste de cadeaux" hidden>
+            <button class="gift-pagination__button" id="gift-page-previous" type="button">Précédente</button>
+            <span class="gift-pagination__label" id="gift-page-indicator" aria-live="polite"></span>
+            <button class="gift-pagination__button" id="gift-page-next" type="button">Suivante</button>
+          </nav>
+        </div>
+        <article class="gift-detail" id="gift-detail" hidden aria-labelledby="gift-detail-title">
+          <button class="gift-detail__back" id="gift-detail-back" type="button">← Retour à la liste</button>
+          <p class="gift-detail__eyebrow eyebrow">Un cadeau pour les mariés</p>
+          <h2 class="gift-detail__title" id="gift-detail-title" tabindex="-1"></h2>
+          <div class="gift-detail__meta">
+            <span class="gift-card__status" id="gift-detail-availability"></span>
+            <span class="gift-card__price" id="gift-detail-price" hidden></span>
+          </div>
+          <p class="gift-card__description gift-detail__description" id="gift-detail-description" hidden></p>
+          <p class="gift-detail__feedback" id="gift-detail-feedback" role="status" aria-live="polite"></p>
+          <div id="gift-detail-actions"></div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="site-footer__brand" href="index.html">M<span>&amp;</span>M</a>
+      <p>À bientôt !</p>
+    </footer>
+  </body>
+</html>
