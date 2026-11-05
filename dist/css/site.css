@@ -221,6 +221,7 @@
   font-weight: 700;
   letter-spacing: .17em;
 }
+.programme-status { margin: 1rem 0 0; padding: .8rem 1rem; border-left: 2px solid var(--wine); background: rgba(229, 234, 223, .38); color: var(--muted); font-size: .82rem; line-height: 1.6; }
 .programme-list {
   display: grid;
   grid-template-columns: 1fr;
